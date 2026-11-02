@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "goliathfactory",
+  "name": "GoliathFactory",
+  "tagline": "Manufacturing operations on GoliathApp: travelers, QC, lot genealogy, NCR/CAPA, inventory, and maintenance.",
+  "description": "GoliathFactory specializes GoliathApp for 10–50 person manufacturers (precision CNC/machining shops serving aerospace and medical, and food processors). It records parts and routings, work orders and signed travelers, inspection plans and results, gauges and calibration, lot genealogy, nonconformances and CAPA, controlled documents, and maintenance, with every operator, QA and manager action typed, signed and recorded. Workflows run on the GoliathApp Workflow Engine; inventory and purchasing use a shared GoliathApp module; accounting syncs through a pluggable adapter (QuickBooks Online, ERPNext). This repository holds the catalog entry and plan; implementation is planned.",
+  "category": "application",
+  "features": [
+    {
+      "title": "Travelers and inspections",
+      "description": "Tablet travelers with signed operation steps, first-article (AS9102) and in-process inspection against ballooned characteristics."
+    },
+    {
+      "title": "Lot genealogy and NCR/CAPA",
+      "description": "Forward and backward trace from material heat lots to shipments, with nonconformance, MRB disposition and CAPA workflows."
+    },
+    {
+      "title": "Inventory and purchasing",
+      "description": "Item master, supplier items and price breaks, approved suppliers, stock by bin and lot, receiving with incoming inspection."
+    },
+    {
+      "title": "Audit trail and e-signatures",
+      "description": "Append-only records and signatures with meaning and re-authentication for AS9100, with Part 11-style controls."
+    }
+  ],
+  "links": {
+    "repository": "https://github.com/Goliath-Research/GoliathFactory",
+    "docs": null,
+    "website": null
+  },
+  "related": ["goliathapp", "goliathcrop"],
+  "dependsOn": ["goliathapp"],
+  "license": "MIT",
+  "status": "planned"
+}
