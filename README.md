@@ -30,7 +30,7 @@ flowchart LR
   A[GoliathApp<br/>auth, RBAC.Sessions, Workflow Engine, workers] -.inherited by.-> P
 ```
 
-GoliathFactory inherits GoliathApp auth (`RBAC.Sessions`), the portal, PostgreSQL stored procedures as the API, the Workflow Engine, and workers that claim tasks through goliath-gateway, with Postgres pub/sub waking workers for event-triggered tasks. Inventory and purchasing come from a shared GoliathApp module; accounting syncs through a pluggable adapter.
+GoliathFactory inherits GoliathApp auth (`RBAC.Sessions`), the portal, the semantic registry (named requests + Exograph GraphQL/MCP) as the read API, typed `ActionSpec` actions, the Workflow Engine, and workers that claim tasks through goliath-gateway, with Postgres pub/sub waking workers for event-triggered tasks. Inventory and purchasing come from a shared GoliathApp module; accounting syncs through a pluggable adapter.
 
 See the [plan](docs/plan.md) for details.
 
