@@ -38,7 +38,7 @@ The name is GoliathFactory: every factory includes QC, so quality is part of it,
 | --- | --- |
 | Parent | GoliathApp (knows nothing about GoliathFactory) |
 | Auth | Inherit GoliathApp auth and `RBAC.Sessions`; e-signature re-authentication comes from GoliathApp (work item below) |
-| API | Neon PostgreSQL stored procedures; portal connects over private network |
+| API | GoliathApp semantic registry (`portal.sp_run_semantic_request`, Exograph GraphQL/MCP) for reads; `ActionSpec` actions via the gateway for writes |
 | Workflows | GoliathApp Workflow Engine runs travelers, NCR/CAPA, approvals; any missing engine feature is built in GoliathApp for every child |
 | Accounting | Pluggable accounting adapter (QuickBooks Online, ERPNext, others) |
 | Workers | Claim through goliath-gateway only; Postgres pub/sub wakes event tasks |
@@ -60,24 +60,153 @@ The name is GoliathFactory: every factory includes QC, so quality is part of it,
 | Auditor / customer (read) | Read-only certs, genealogy, audit trail for scoped lots |
 | Worker (service) | Gateway claim scopes only |
 
-## Domain model
+## Semantic layer
 
-| Entity | Key facts |
-| --- | --- |
-| Part / revision | Part number, revision, drawing, material spec, customer, effectivity |
-| Routing | Ordered operations per part revision: work center, setup, instructions, inspection points |
-| Work order / traveler | Part rev, quantity, lot, due date, status; the traveler is its live, signed step record |
-| Operation | Step on a traveler: operator, machine, start/end, quantity good/scrap, sign-off |
-| Inspection plan / characteristic | Ballooned characteristics with nominal, tolerances, method, gauge type, sampling (AQL/FAI) |
-| Inspection result | Measured values per characteristic and piece; pass/fail; inspector signature |
-| Gauge / calibration | Gauge ID, type, location, calibration interval, certs, due date, out-of-cal lockout |
-| Lot and genealogy | Material lots, heat/cert numbers, WIP and finished lots; parent-child links for forward and backward trace |
-| Item / supplier item | Internal item master plus per-supplier names, part numbers, prices and lead times |
-| Stock / PO | On-hand by location and lot, reservations, purchase orders and receipts |
-| NCR / CAPA | Nonconformance, containment, MRB disposition (use-as-is, rework, scrap, RTV), root cause, corrective action, effectiveness check |
-| Maintenance asset / PM | Machines and equipment, PM schedules (time or cycle), work requests, downtime |
-| Document / approval | Controlled documents and revisions, approval routing, training acknowledgements |
-| Audit trail / e-signature | Append-only change log; signatures with meaning, signer, time, re-auth (21 CFR Part 11 for medical/food where relevant; AS9100 records) |
+Raw tables are an internal detail. Users, the portal, and agents see **GoliathFactory** through GoliathApp's semantic registry ([semantic layer](https://goliath-research.github.io/GoliathApp/semantic-layer/), [semantic extensions](https://goliath-research.github.io/GoliathApp/semantic-extensions/)), the same pattern as GoliathOmics.
+
+- **Namespace:** `mfg` (row in `portal.semantic_namespace`; GoliathApp owns `core` and `engine`).
+- **Registration:** Python `SemanticEntitySpec` / `SemanticRequestSpec` (`goliath_app.semantic.spec`) → `goliath-semantic-export` (Pydantic row models, `portal_semantic_row_types.sql`, `schemas/semantic/catalog.json`) → release seeder calling `portal.sp_semantic_register_entity`, `portal.sp_semantic_register_attribute`, `portal.sp_semantic_register_request`.
+- **Reads:** every read is a named request run by `portal.sp_run_semantic_request` (RBAC permission + organization scope), via `goliath_app.portal.PortalClient` or the Exograph GraphQL/MCP façade.
+
+### Entities
+
+| Code | Display name | Key attributes | Backing (`storage_relation` / Meta class) |
+| --- | --- | --- | --- |
+| `mfg.part` | Part revision | part_number, revision, material_spec, customer, effectivity | view `fac_eng.v_part_revision` |
+| `mfg.routing` | Routing | part revision, operations, work centers | view `fac_eng.v_routing` |
+| `mfg.work_order` | Work order | part revision, quantity, lot, due date, status | view `fac_prod.v_work_order` |
+| `mfg.traveler_step` | Traveler step | work order, operation, operator, machine, qty good/scrap, signed | view `fac_prod.v_traveler_step` |
+| `mfg.inspection_plan` | Inspection plan | part revision, characteristics, sampling | view `fac_qual.v_inspection_plan` |
+| `mfg.inspection_result` | Inspection result | characteristic, piece, value, pass/fail, inspector | view `fac_qual.v_inspection_result` |
+| `mfg.gauge` | Gauge | gauge_id, type, location, cal_due, locked_out | view `fac_gauge.v_gauge` |
+| `mfg.lot` | Lot | lot number, kind, heat/cert, parent/child links | view `fac_trace.v_lot` + `fn_genealogy` |
+| `mfg.ncr` | Nonconformance | part, lot, defect, containment, disposition | view `fac_qual.v_ncr` |
+| `mfg.capa` | CAPA | source NCRs, root cause, actions, effectiveness | view `fac_qual.v_capa` |
+| `mfg.asset` | Maintenance asset | machine, PM schedule, next due, downtime | view `fac_maint.v_asset` |
+| `mfg.document` | Controlled document | number, revision, status, approvals | view `fac_doc.v_document` |
+| `mfg.item` | Item | item master, supplier items, on hand (GoliathApp `inv` module) | `inv` module entities (`inv.item`) |
+| `mfg.purchase_order` | Purchase order | supplier, lines, receipts (GoliathApp `inv` module) | `inv` module entities (`inv.purchase_order`) |
+
+### Named requests
+
+| `request_code` | Entity | Params | `required_permission` | Target |
+| --- | --- | --- | --- | --- |
+| `mfg.work_order.list_open` | `mfg.work_order` | site_id, status?, due_before? | `mfg.work_order.read` | view |
+| `mfg.traveler_step.by_work_order` | `mfg.traveler_step` | work_order_id | `mfg.traveler.read` | view |
+| `mfg.inspection_result.by_lot` | `mfg.inspection_result` | lot_id | `mfg.quality.read` | view |
+| `mfg.lot.genealogy` | `mfg.lot` | lot_id, direction (forward/backward) | `mfg.trace.read` | function `fac_trace.fn_genealogy` |
+| `mfg.ncr.list_open` | `mfg.ncr` | site_id, status? | `mfg.quality.read` | view |
+| `mfg.gauge.due_calibration` | `mfg.gauge` | site_id, within_days | `mfg.gauge.read` | view |
+| `mfg.asset.pm_due` | `mfg.asset` | site_id, within_days | `mfg.maint.read` | view |
+
+### Example entity spec
+
+```python
+from goliath_app.semantic.spec import SemanticAttributeSpec, SemanticEntitySpec, SemanticRequestSpec
+
+WORK_ORDER_ENTITY = SemanticEntitySpec(
+    namespace="mfg",
+    code="work_order",
+    display_name="Work order",
+    description="A released or planned production order with its traveler.",
+    schema_version="1",
+    row_model=WorkOrderRow,
+    storage_relation="fac_prod.v_work_order",
+    attributes=(
+        SemanticAttributeSpec(code="work_order_id", column_name="id", json_type="integer", role="key"),
+        SemanticAttributeSpec(code="site_id", column_name="site_id", json_type="integer", role="filter", filterable_ops=("eq",)),
+        SemanticAttributeSpec(code="part_number", column_name="part_number", json_type="string", role="label", filterable_ops=("eq", "ilike")),
+        SemanticAttributeSpec(code="status", column_name="status", json_type="string", role="attribute", filterable_ops=("eq", "in")),
+        SemanticAttributeSpec(code="due_date", column_name="due_date", json_type="date", role="attribute", filterable_ops=("lte", "gte")),
+    ),
+)
+
+WORK_ORDER_LIST = SemanticRequestSpec(
+    request_code="mfg.work_order.list_open",
+    version="1",
+    namespace="mfg",
+    entity_code="work_order",
+    target_kind="view",
+    target_name="fac_prod.v_work_order",
+    params_model=WorkOrderListParams,
+    result_row_model=WorkOrderRow,
+    required_permission="mfg.work_order.read",
+    max_rows=500,
+)
+```
+
+## Action layer
+
+Business operations are typed `ActionSpec` rows (`goliath_app.actions.spec`), published through the `goliath.action_catalogs` entry point and synced into `wf.workflow_action` by the release (`seed_action_catalog.py --use-db`). Levels: `engine` = low-level workflow steps (GoliathApp), `core` = GoliathApp core-entity actions, `domain` = GoliathFactory business actions. Every user-facing action uses `exposure=ActionExposure.RBAC` and names its `entity_code`; internal helper steps use `ActionExposure.HIDDEN`.
+
+| `action_name` | Level | `entity_code` | Exposure | `required_permission` | Capability |
+| --- | --- | --- | --- | --- | --- |
+| `mfg.work_order.release` | domain | `mfg.work_order` | RBAC | `mfg.work_order.release` | `mfg.prod` |
+| `mfg.traveler_step.sign_off` | domain | `mfg.traveler_step` | RBAC | `mfg.traveler.sign` | `mfg.prod` |
+| `mfg.inspection_result.record` | domain | `mfg.inspection_result` | RBAC | `mfg.quality.inspect` | `mfg.quality` |
+| `mfg.ncr.open` | domain | `mfg.ncr` | RBAC | `mfg.quality.inspect` | `mfg.quality` |
+| `mfg.ncr.disposition` | domain | `mfg.ncr` | RBAC | `mfg.quality.mrb` | `mfg.quality` |
+| `mfg.capa.close` | domain | `mfg.capa` | RBAC | `mfg.quality.approve` | `mfg.quality` |
+| `mfg.gauge.lockout_check` | domain | `mfg.gauge` | HIDDEN | — | `mfg.gauge` |
+| `mfg.lot.coc_generate` | domain | `mfg.lot` | RBAC | `mfg.trace.write` | `mfg.trace` |
+
+### Example ActionSpec
+
+```python
+from goliath_app.actions.spec import ActionExposure, ActionLevel, ActionSpec
+
+DISPOSITION = ActionSpec(
+    action_name="mfg.ncr.disposition",
+    namespace="mfg",
+    level=ActionLevel.DOMAIN,
+    entity_code="ncr",
+    display_name="Disposition NCR",
+    description="Record MRB disposition (use-as-is, rework, scrap, RTV) with e-signature.",
+    exposure=ActionExposure.RBAC,
+    required_permission="mfg.quality.mrb",
+    input_model=NcrDispositionInput,
+    output_model=NcrDispositionOutput,
+    schema_version="1",
+    capability="mfg.quality",
+    tool="mfg-ncr",
+)
+```
+
+```toml
+# pyproject.toml
+[project.entry-points."goliath.action_catalogs"]
+mfg = "goliath_factory.actions.catalog:ACTIONS"
+```
+
+## NavTree extension
+
+GoliathFactory **adds** nodes to `portal."NavTree"` with `portal.sp_nav_register_node(p_parent_id, p_caption, p_seq, p_info_id, p_node_path, p_sort_path)` and grants them in `portal."Role2Node"` (`ScopeId`, `RoleId`, `NodeId`). It never updates or deletes GoliathApp foundation nodes (home, organizations, users and roles, workflows, admin); it only attaches a top-level **Factory** node beside them and children under it. Captions stay within `varchar(50)`. Each leaf's `InfoID` points to the entity, request, or action it opens.
+
+| Node path | Opens | Roles (`Role2Node`) |
+| --- | --- | --- |
+| Factory | group node beside foundation menus | all factory roles |
+| Factory › Work orders | `mfg.work_order.list_open`; action `mfg.work_order.release` | plant manager, supervisor |
+| Factory › Shop floor (traveler) | `mfg.traveler_step.by_work_order`; action `mfg.traveler_step.sign_off` | operator, supervisor |
+| Factory › Quality › Inspections | `mfg.inspection_result.by_lot`; action `mfg.inspection_result.record` | inspector, quality manager |
+| Factory › Quality › NCR / CAPA | `mfg.ncr.list_open`; actions `mfg.ncr.disposition`, `mfg.capa.close` | quality manager, supervisor |
+| Factory › Gauges | `mfg.gauge.due_calibration` | inspector, quality manager |
+| Factory › Traceability | `mfg.lot.genealogy`; action `mfg.lot.coc_generate` | quality manager, auditor (read) |
+| Factory › Maintenance | `mfg.asset.pm_due` | maintenance tech, plant manager |
+| Factory › Inventory & purchasing | GoliathApp `inv` module nodes (enabled, not redefined) | buyer / storekeeper |
+
+Role2Node rows are scoped per organization (`ScopeId`); the release seeder inserts them idempotently after the nodes exist. Foundation menus remain exactly as GoliathApp ships them.
+
+## Reuse of GoliathApp
+
+| Concern | Comes from GoliathApp | GoliathFactory adds |
+| --- | --- | --- |
+| Organizations and tenancy | `portal."Organizations"`, `portal.fn_semantic_user_organization_ids` | Site belongs to an organization; site-level scoping via request filters |
+| RBAC | `RBAC` roles, `"RBAC"."UserRoleGrants"`, `"RBAC"."Role_Permissions"`, sessions | `mfg.*` permissions and role bundles |
+| Audit and e-signature | Platform append-only audit and signature service | Domain meanings for signatures |
+| Read API | `portal.sp_run_semantic_request`, `PortalClient`, Exograph GraphQL + optional MCP (`goliath_portal` role, read-only) | Registry rows only |
+| Writes | REST gateway → `wf.sp_*` / `portal.sp_*` ops and `ActionSpec` actions | Domain actions |
+
+There is no per-app "stored procedures are the API" surface: internal domain procedures exist only as `target_name` of semantic requests or as action handlers.
 
 ## Inventory & Purchasing
 
@@ -131,23 +260,6 @@ The name is GoliathFactory: every factory includes QC, so quality is part of it,
 | Catalog / invoice matching | Wake + claim | File uploaded; fuzzy matches go to a human confirmation queue |
 
 Same pattern as GoliathCrop: a stored procedure inserts the task and issues `pg_notify`; idle workers wake, then own it with a gateway claim. All CPU-only.
-
-## Database schema sketch
-
-| Schema | Key tables |
-| --- | --- |
-| `fac_eng` | parts, part_revisions, routings, routing_operations, work_centers |
-| `fac_prod` | work_orders, travelers, traveler_steps, operation_records |
-| `fac_qual` | inspection_plans, characteristics, inspection_results, ncrs, mrb_dispositions, capas |
-| `fac_gauge` | gauges, calibrations, calibration_certs |
-| `fac_trace` | material_lots, lots, lot_links (genealogy), shipments, cocs |
-| `fac_maint` | assets, pm_schedules, maintenance_orders, downtime_events |
-| `fac_doc` | documents, document_revisions, approvals, training_records |
-| `fac_audit` | audit_log (append-only), signatures |
-| `inv` (GoliathApp module) | items, units, unit_conversions, suppliers, approved_suppliers, supplier_items, price_breaks, item_alternates, customer_item_refs, locations, bins, stock_lots, stock_moves, reservations, cycle_counts, purchase_orders, po_lines, receipts, item_costs, match_candidates |
-| `fac_api` | stored procedures only; the portal's surface |
-
-Row-level security by site and role. Genealogy queries use recursive CTEs; no extra extensions required for v1.
 
 ## Portal and shop-floor views
 
@@ -262,3 +374,21 @@ Conditional steps work: an action sets a variable and IF branches on it. A condi
 | QuickBooks Online | Paid; what David and most shops already use; good REST API |
 
 **Recommendation:** build the adapter interface with QuickBooks Online first, since the pilot shop most likely already runs it, and ERPNext as the first free adapter for buyers with no accounting system.
+
+## Appendix: physical mapping (internal)
+
+These schemas back the semantic entities above. They are not a public API: the portal, Exograph, and agents reach them only through registered semantic requests and `ActionSpec` actions.
+
+| Schema | Key tables |
+| --- | --- |
+| `fac_eng` | parts, part_revisions, routings, routing_operations, work_centers |
+| `fac_prod` | work_orders, travelers, traveler_steps, operation_records |
+| `fac_qual` | inspection_plans, characteristics, inspection_results, ncrs, mrb_dispositions, capas |
+| `fac_gauge` | gauges, calibrations, calibration_certs |
+| `fac_trace` | material_lots, lots, lot_links (genealogy), shipments, cocs |
+| `fac_maint` | assets, pm_schedules, maintenance_orders, downtime_events |
+| `fac_doc` | documents, document_revisions, approvals, training_records |
+| `fac_audit` | audit_log (append-only), signatures |
+| `inv` (GoliathApp module) | items, units, unit_conversions, suppliers, approved_suppliers, supplier_items, price_breaks, item_alternates, customer_item_refs, locations, bins, stock_lots, stock_moves, reservations, cycle_counts, purchase_orders, po_lines, receipts, item_costs, match_candidates |
+
+Row-level security by site and role. Genealogy queries use recursive CTEs; no extra extensions required for v1.
