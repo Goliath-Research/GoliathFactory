@@ -136,13 +136,25 @@ BEGIN
       'mfg.spc.summarize',
       jsonb_build_object(
         'characteristic_id', v_char.characteristic_id,
-        'site_id', v_char.site_id
+        'site_id', v_char.site_id,
+        'chart_type', 'xbar_r'
       ),
       'mfg.spc',
       'nightly_spc_backlog',
-      'spc:char:' || v_char.characteristic_id::text || ':' || gen_random_uuid()::text
+      'spc:char:' || v_char.characteristic_id::text || ':xbar_r:' || gen_random_uuid()::text
     );
-    v_count := v_count + 1;
+    PERFORM fac_wf.sp_enqueue_processing_task(
+      'mfg.spc.summarize',
+      jsonb_build_object(
+        'characteristic_id', v_char.characteristic_id,
+        'site_id', v_char.site_id,
+        'chart_type', 'imr'
+      ),
+      'mfg.spc',
+      'nightly_spc_backlog',
+      'spc:char:' || v_char.characteristic_id::text || ':imr:' || gen_random_uuid()::text
+    );
+    v_count := v_count + 2;
   END LOOP;
   RETURN v_count;
 END;

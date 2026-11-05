@@ -75,7 +75,15 @@ def handle_cmm_import_file(
                     (characteristic_id, lot_id, row.piece_number, row.measured_value),
                 )
                 inserted += 1
-            status = "completed" if not parsed.warnings or inserted > 0 else "failed"
+            if parsed.warnings and inserted == 0:
+                status = "failed"
+            elif parsed.rows and inserted == 0:
+                status = "failed"
+            else:
+                status = "completed"
+            error_summary = "; ".join(parsed.warnings) if parsed.warnings else None
+            if status == "failed" and not error_summary and parsed.rows and inserted == 0:
+                error_summary = "no matching inspection characteristics for parsed rows"
             cur.execute(
                 """
                 UPDATE fac_qual.cmm_import_batches
@@ -89,7 +97,7 @@ def handle_cmm_import_file(
                 (
                     status,
                     inserted,
-                    "; ".join(parsed.warnings) if parsed.warnings else None,
+                    error_summary,
                     batch_id,
                 ),
             )

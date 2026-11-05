@@ -85,8 +85,16 @@ BEGIN
   END IF;
   PERFORM set_config('goliath.mfg.user_id', p_user_id::text, true);
 
-  v_schedule_id := p_pm_schedule_id;
-  IF v_schedule_id IS NULL THEN
+  IF p_pm_schedule_id IS NOT NULL THEN
+    SELECT ps.id INTO v_schedule_id
+    FROM fac_maint.pm_schedules ps
+    WHERE ps.id = p_pm_schedule_id
+      AND ps.asset_id = p_asset_id
+      AND ps.active;
+    IF v_schedule_id IS NULL THEN
+      PERFORM portal.fn_semantic_raise('GS422', 'pm schedule not found for asset');
+    END IF;
+  ELSE
     SELECT ps.id INTO v_schedule_id
     FROM fac_maint.pm_schedules ps
     WHERE ps.asset_id = p_asset_id AND ps.active
@@ -151,6 +159,7 @@ DECLARE
   v_site_id integer;
   v_asset_id integer;
   v_schedule_id integer;
+  v_status text;
   v_interval integer;
   v_next date := CURRENT_DATE;
   v_item record;
@@ -165,14 +174,17 @@ BEGIN
     PERFORM portal.fn_semantic_raise('GS422', 'record_hash required');
   END IF;
 
-  SELECT a.site_id, mo.asset_id, mo.pm_schedule_id
-  INTO v_site_id, v_asset_id, v_schedule_id
+  SELECT a.site_id, mo.asset_id, mo.pm_schedule_id, mo.status
+  INTO v_site_id, v_asset_id, v_schedule_id, v_status
   FROM fac_maint.maintenance_orders mo
   JOIN fac_maint.assets a ON a.id = mo.asset_id
   WHERE mo.id = p_maintenance_order_id;
 
   IF v_site_id IS NULL OR NOT fac_eng.fn_user_can_access_site(p_user_id, v_site_id) THEN
     PERFORM portal.fn_semantic_raise('GS403', 'maintenance order scope denied');
+  END IF;
+  IF v_status NOT IN ('open', 'in_progress') THEN
+    PERFORM portal.fn_semantic_raise('GS409', 'maintenance order cannot be completed from current status');
   END IF;
   PERFORM set_config('goliath.mfg.user_id', p_user_id::text, true);
 
@@ -246,6 +258,8 @@ SET search_path = fac_maint, fac_eng, fac_audit, portal, pg_temp
 AS $$
 DECLARE
   v_id bigint;
+  v_asset_site_id integer;
+  v_wc_site_id integer;
 BEGIN
   IF p_user_id IS NULL THEN
     PERFORM portal.fn_semantic_raise('GS401', 'user required');
@@ -255,6 +269,22 @@ BEGIN
   END IF;
   IF p_asset_id IS NULL AND p_work_center_id IS NULL THEN
     PERFORM portal.fn_semantic_raise('GS422', 'asset_id or work_center_id required');
+  END IF;
+  IF p_asset_id IS NOT NULL THEN
+    SELECT a.site_id INTO v_asset_site_id
+    FROM fac_maint.assets a
+    WHERE a.id = p_asset_id;
+    IF v_asset_site_id IS NULL OR v_asset_site_id <> p_site_id THEN
+      PERFORM portal.fn_semantic_raise('GS422', 'asset not at site');
+    END IF;
+  END IF;
+  IF p_work_center_id IS NOT NULL THEN
+    SELECT wc.site_id INTO v_wc_site_id
+    FROM fac_eng.work_centers wc
+    WHERE wc.id = p_work_center_id;
+    IF v_wc_site_id IS NULL OR v_wc_site_id <> p_site_id THEN
+      PERFORM portal.fn_semantic_raise('GS422', 'work center not at site');
+    END IF;
   END IF;
   PERFORM set_config('goliath.mfg.user_id', p_user_id::text, true);
 

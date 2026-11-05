@@ -60,18 +60,24 @@ def compute_xbar_r(
     lcl_x = xbar_bar - a2 * r_bar
     ucl_r = d4 * r_bar
     lcl_r = d3 * r_bar
+    we2 = _we2_flags(xbars, center=xbar_bar, ucl=ucl_x, lcl=lcl_x)
     points: list[SpcPoint] = []
     for idx, (xb, r) in enumerate(zip(xbars, ranges, strict=True), start=1):
-        violations = western_electric_basic(
-            primary=xb,
-            secondary=r,
-            center=xbar_bar,
-            ucl=ucl_x,
-            lcl=lcl_x,
-            sec_center=r_bar,
-            sec_ucl=ucl_r,
-            sec_lcl=lcl_r,
+        violations = list(
+            western_electric_basic(
+                primary=xb,
+                secondary=r,
+                center=xbar_bar,
+                ucl=ucl_x,
+                lcl=lcl_x,
+                sec_center=r_bar,
+                sec_ucl=ucl_r,
+                sec_lcl=lcl_r,
+            )
         )
+        if we2[idx - 1]:
+            violations.append("WE2")
+        violations = tuple(dict.fromkeys(violations))
         points.append(
             SpcPoint(
                 point_index=idx,
@@ -97,19 +103,25 @@ def compute_imr(values: Sequence[float]) -> list[SpcPoint]:
     ucl_i = i_bar + 2.66 * mr_bar
     lcl_i = i_bar - 2.66 * mr_bar
     ucl_mr = 3.267 * mr_bar
+    we2 = _we2_flags(seq, center=i_bar, ucl=ucl_i, lcl=lcl_i)
     points: list[SpcPoint] = []
     for idx, individual in enumerate(seq, start=1):
         mr = None if idx == 1 else moving_ranges[idx - 2]
-        violations = western_electric_basic(
-            primary=individual,
-            secondary=mr,
-            center=i_bar,
-            ucl=ucl_i,
-            lcl=lcl_i,
-            sec_center=mr_bar,
-            sec_ucl=ucl_mr,
-            sec_lcl=0.0,
+        violations = list(
+            western_electric_basic(
+                primary=individual,
+                secondary=mr,
+                center=i_bar,
+                ucl=ucl_i,
+                lcl=lcl_i,
+                sec_center=mr_bar,
+                sec_ucl=ucl_mr,
+                sec_lcl=0.0,
+            )
         )
+        if we2[idx - 1]:
+            violations.append("WE2")
+        violations = tuple(dict.fromkeys(violations))
         points.append(
             SpcPoint(
                 point_index=idx,
@@ -123,6 +135,38 @@ def compute_imr(values: Sequence[float]) -> list[SpcPoint]:
             )
         )
     return points
+
+
+def _we2_flags(
+    primary_values: Sequence[float],
+    *,
+    center: float,
+    ucl: float,
+    lcl: float,
+) -> list[bool]:
+    """Rule 2: two of three consecutive points beyond 2σ on the same side."""
+    n = len(primary_values)
+    if n == 0:
+        return []
+    sigma = (ucl - center) / 3.0 if ucl != center else 0.0
+    if sigma == 0.0:
+        return [False] * n
+    upper2 = center + 2 * sigma
+    lower2 = center - 2 * sigma
+    sides: list[int] = []
+    for value in primary_values:
+        if value > upper2:
+            sides.append(1)
+        elif value < lower2:
+            sides.append(-1)
+        else:
+            sides.append(0)
+    flags = [False] * n
+    for i in range(2, n):
+        window = sides[i - 2 : i + 1]
+        if sum(1 for s in window if s == 1) >= 2 or sum(1 for s in window if s == -1) >= 2:
+            flags[i] = True
+    return flags
 
 
 def western_electric_basic(
@@ -143,10 +187,6 @@ def western_electric_basic(
         return tuple()
     if primary > ucl or primary < lcl:
         violations.append("WE1")
-    upper2 = center + 2 * sigma
-    lower2 = center - 2 * sigma
-    if primary > upper2 or primary < lower2:
-        violations.append("WE2")
     if secondary is not None:
         if secondary > sec_ucl or secondary < sec_lcl:
             violations.append("WE_R1")
