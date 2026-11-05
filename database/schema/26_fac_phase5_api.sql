@@ -266,11 +266,11 @@ BEGIN
     PERFORM portal.fn_semantic_raise('GS400', 'action not allowed offline');
   END IF;
   IF p_action_name IN ('mfg.traveler_step.start', 'mfg.traveler_step.sign_off')
-     AND NOT portal.fn_semantic_session_has_permission(p_user_id, 'mfg.traveler.sign') THEN
+     AND NOT COALESCE(portal.fn_semantic_session_has_permission(p_user_id, 'mfg.traveler.sign'), false) THEN
     PERFORM portal.fn_semantic_raise('GS403', 'traveler sign permission denied');
   END IF;
   IF p_action_name = 'mfg.inspection_result.record'
-     AND NOT portal.fn_semantic_session_has_permission(p_user_id, 'mfg.quality.inspect') THEN
+     AND NOT COALESCE(portal.fn_semantic_session_has_permission(p_user_id, 'mfg.quality.inspect'), false) THEN
     PERFORM portal.fn_semantic_raise('GS403', 'inspection permission denied');
   END IF;
   PERFORM set_config('goliath.mfg.user_id', p_user_id::text, true);
