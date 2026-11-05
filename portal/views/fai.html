@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Factory · First article</title>
+    <link rel="stylesheet" href="../static/mfg-shell.css" />
+  </head>
+  <body>
+    <h1>First article (AS9102)</h1>
+    <div class="mfg-card">
+      <form id="startForm" class="mfg-form-grid">
+        <label>Work order ID <input name="work_order_id" type="number" required value="1" /></label>
+        <button type="submit">Start FAI</button>
+      </form>
+      <form id="approveForm" class="mfg-form-grid">
+        <label>FAI ID <input name="first_article_id" type="number" required /></label>
+        <button class="primary" type="submit">QA approve FAI</button>
+      </form>
+    </div>
+    <pre class="mfg-card" id="faiOut"></pre>
+    <p class="mfg-status" id="status"></p>
+    <script src="../static/mfg-api.js"></script>
+    <script>
+      const status = document.getElementById("status");
+      const faiOut = document.getElementById("faiOut");
+
+      async function loadFai(workOrderId) {
+        const rows = await MfgPortal.runSemanticRequest("mfg.fai.by_work_order", {
+          work_order_id: workOrderId,
+        });
+        faiOut.textContent = JSON.stringify(rows, null, 2);
+        if (rows[0]) {
+          document.querySelector('#approveForm input[name="first_article_id"]').value = rows[0].first_article_id;
+        }
+      }
+
+      document.getElementById("startForm").addEventListener("submit", async (ev) => {
+        ev.preventDefault();
+        const wo = Number(new FormData(ev.target).get("work_order_id"));
+        try {
+          await MfgPortal.runAction("mfg.fai.start", { work_order_id: wo });
+          MfgPortal.setStatus(status, "FAI started");
+          await loadFai(wo);
+        } catch (err) {
+          MfgPortal.setStatus(status, err.message, true);
+        }
+      });
+
+      document.getElementById("approveForm").addEventListener("submit", async (ev) => {
+        ev.preventDefault();
+        const faiId = Number(new FormData(ev.target).get("first_article_id"));
+        const wo = Number(new FormData(document.getElementById("startForm")).get("work_order_id"));
+        try {
+          await MfgPortal.runAction("mfg.fai.approve", { first_article_id: faiId });
+          MfgPortal.setStatus(status, "FAI approved");
+          await loadFai(wo);
+        } catch (err) {
+          MfgPortal.setStatus(status, err.message, true);
+        }
+      });
+
+      loadFai(1).catch((err) => MfgPortal.setStatus(status, err.message, true));
+    </script>
+  </body>
+</html>

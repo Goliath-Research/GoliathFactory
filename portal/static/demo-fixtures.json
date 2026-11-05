@@ -76,5 +76,55 @@
       "link_kind": "consume",
       "related_lot_number": "LOT-2026-1105-A"
     }
+  ],
+  "mfg.capa.list_open": [
+    {
+      "capa_id": 3,
+      "capa_number": "CAPA-2026-003",
+      "title": "Recurring bore OOS",
+      "status": "open",
+      "open_action_count": 1,
+      "source_ncr_count": 2
+    }
+  ],
+  "mfg.gauge.due_calibration": [
+    {
+      "gauge_id": 9,
+      "gauge_tag": "CAL-001",
+      "gauge_type": "micrometer",
+      "next_cal_due_on": "2026-11-01",
+      "locked_out": true
+    }
+  ],
+  "mfg.document.list": [
+    {
+      "document_id": 1,
+      "doc_number": "QP-001",
+      "title": "Inspection procedure",
+      "revision": "B",
+      "status": "effective"
+    }
+  ],
+  "mfg.fai.by_work_order": [
+    {
+      "first_article_id": 5,
+      "work_order_id": 101,
+      "part_number": "BRG-100",
+      "status": "in_progress",
+      "result_count": 3
+    }
+  ],
+  "inv.item.list": [
+    {
+      "item_id": 1,
+      "item_number": "RAW-4140",
+      "qty_on_hand": 120
+    }
+  ],
+  "inv.purchase_order.list": [
+    {
+      "purchase_order_id": 44,
+      "status": "open"
+    }
   ]
 }

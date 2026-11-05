@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Factory · Gauges</title>
+    <link rel="stylesheet" href="../static/mfg-shell.css" />
+  </head>
+  <body>
+    <h1>Gauge calibration due</h1>
+    <p>Locked-out gauges cannot be used for inspection entry.</p>
+    <ul class="mfg-list" id="gaugeList"></ul>
+    <p class="mfg-status" id="status"></p>
+    <script src="../static/mfg-api.js"></script>
+    <script>
+      const status = document.getElementById("status");
+      const gaugeList = document.getElementById("gaugeList");
+
+      MfgPortal.runSemanticRequest("mfg.gauge.due_calibration", {
+        site_id: MfgPortal.siteId(),
+        within_days: 60,
+      })
+        .then((rows) => {
+          gaugeList.innerHTML = rows
+            .map(
+              (g) =>
+                `<li><strong>${g.gauge_tag}</strong> (${g.gauge_type}) — due ${g.next_cal_due_on || "unknown"} ` +
+                `<span class="mfg-badge ${g.locked_out ? "fail" : "ok"}">${g.locked_out ? "LOCKED" : "OK"}</span></li>`
+            )
+            .join("");
+        })
+        .catch((err) => MfgPortal.setStatus(status, err.message, true));
+    </script>
+  </body>
+</html>

@@ -6,6 +6,18 @@ import json
 from typing import Any
 
 from goliath_factory.actions.models import (
+    CapaCloseInput,
+    CapaCloseOutput,
+    DocumentApproveInput,
+    DocumentApproveOutput,
+    DocumentSubmitReviewInput,
+    DocumentSubmitReviewOutput,
+    FaiApproveInput,
+    FaiApproveOutput,
+    FaiStartInput,
+    FaiStartOutput,
+    GaugeLockoutCheckInput,
+    GaugeLockoutCheckOutput,
     InspectionResultRecordInput,
     InspectionResultRecordOutput,
     InvIssueToWorkOrderStubInput,
@@ -214,6 +226,142 @@ def handle_ncr_disposition(
     ).model_dump(mode="json")
 
 
+def handle_capa_close(
+    payload: dict[str, Any],
+    *,
+    context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    model = CapaCloseInput.model_validate(payload)
+    user_id = _require_db_user(context)
+    with connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT fac_qual.sp_capa_close(%s, %s, %s, %s, %s)
+                """,
+                (
+                    user_id,
+                    model.capa_id,
+                    model.effectiveness_notes,
+                    model.signature_meaning,
+                    model.record_hash,
+                ),
+            )
+            status = str(_fetch_one(cur, "sp_capa_close")[0])
+        conn.commit()
+    return CapaCloseOutput(capa_id=model.capa_id, status=status).model_dump(mode="json")
+
+
+def handle_gauge_lockout_check(
+    payload: dict[str, Any],
+    *,
+    context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    model = GaugeLockoutCheckInput.model_validate(payload)
+    _require_db_user(context)
+    with connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT fac_gauge.sp_lockout_check(%s)",
+                (model.gauge_id,),
+            )
+            locked = bool(_fetch_one(cur, "sp_lockout_check")[0])
+    return GaugeLockoutCheckOutput(gauge_id=model.gauge_id, locked_out=locked).model_dump(
+        mode="json"
+    )
+
+
+def handle_fai_start(
+    payload: dict[str, Any],
+    *,
+    context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    model = FaiStartInput.model_validate(payload)
+    user_id = _require_db_user(context)
+    with connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT fac_qual.sp_fai_start(%s, %s, %s)",
+                (user_id, model.work_order_id, model.inspection_plan_id),
+            )
+            fai_id = int(_fetch_one(cur, "sp_fai_start")[0])
+        conn.commit()
+    return FaiStartOutput(first_article_id=fai_id, status="in_progress").model_dump(mode="json")
+
+
+def handle_fai_approve(
+    payload: dict[str, Any],
+    *,
+    context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    model = FaiApproveInput.model_validate(payload)
+    user_id = _require_db_user(context)
+    with connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT fac_qual.sp_fai_approve(%s, %s, %s, %s)",
+                (
+                    user_id,
+                    model.first_article_id,
+                    model.signature_meaning,
+                    model.record_hash,
+                ),
+            )
+            status = str(_fetch_one(cur, "sp_fai_approve")[0])
+        conn.commit()
+    return FaiApproveOutput(first_article_id=model.first_article_id, status=status).model_dump(
+        mode="json"
+    )
+
+
+def handle_document_submit_review(
+    payload: dict[str, Any],
+    *,
+    context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    model = DocumentSubmitReviewInput.model_validate(payload)
+    user_id = _require_db_user(context)
+    with connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT fac_doc.sp_document_submit_review(%s, %s, %s)",
+                (user_id, model.revision_id, model.change_summary),
+            )
+            status = str(_fetch_one(cur, "sp_document_submit_review")[0])
+        conn.commit()
+    return DocumentSubmitReviewOutput(revision_id=model.revision_id, status=status).model_dump(
+        mode="json"
+    )
+
+
+def handle_document_approve(
+    payload: dict[str, Any],
+    *,
+    context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    model = DocumentApproveInput.model_validate(payload)
+    user_id = _require_db_user(context)
+    with connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT fac_doc.sp_document_approve(%s, %s, %s, %s, %s)
+                """,
+                (
+                    user_id,
+                    model.revision_id,
+                    model.signature_meaning,
+                    model.record_hash,
+                    model.effective_on,
+                ),
+            )
+            status = str(_fetch_one(cur, "sp_document_approve")[0])
+        conn.commit()
+    return DocumentApproveOutput(revision_id=model.revision_id, status=status).model_dump(
+        mode="json"
+    )
+
+
 def handle_lot_coc_generate(
     payload: dict[str, Any],
     *,
@@ -259,7 +407,7 @@ def handle_inv_receive_stub(
         detail = json.loads(detail)
     return InvReceiveStubOutput(
         status=str(detail.get("status", "stub")),
-        dependency=str(detail.get("dependency", "GoliathApp inv module")),
+        dependency=detail.get("dependency"),
         detail=detail,
     ).model_dump(mode="json")
 
@@ -285,6 +433,6 @@ def handle_inv_issue_to_work_order_stub(
         detail = json.loads(detail)
     return InvIssueToWorkOrderStubOutput(
         status=str(detail.get("status", "stub")),
-        dependency=str(detail.get("dependency", "GoliathApp inv module")),
+        dependency=detail.get("dependency"),
         detail=detail,
     ).model_dump(mode="json")

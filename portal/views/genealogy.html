@@ -18,7 +18,7 @@
         </select>
       </label>
       <button type="button" class="secondary" id="loadBtn">Trace</button>
-      <button type="button" class="primary" id="cocBtn">CoC stub</button>
+      <button type="button" class="primary" id="cocBtn">Generate CoC</button>
     </div>
     <ul class="mfg-list" id="tree"></ul>
     <pre class="mfg-card" id="cocOut" hidden></pre>
@@ -54,7 +54,7 @@
           const pre = document.getElementById("cocOut");
           pre.hidden = false;
           pre.textContent = JSON.stringify(out.document || out, null, 2);
-          MfgPortal.setStatus(status, "CoC stub generated");
+          MfgPortal.setStatus(status, "CoC generated");
         } catch (err) {
           MfgPortal.setStatus(status, err.message, true);
         }

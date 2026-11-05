@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Factory · Inventory</title>
+    <link rel="stylesheet" href="../static/mfg-shell.css" />
+  </head>
+  <body>
+    <h1>Inventory &amp; purchasing</h1>
+    <p>
+      Reads the GoliathApp <code>inv</code> semantic namespace when PR
+      <a href="https://github.com/Goliath-Research/GoliathApp/pull/34">#34</a> is applied on the deployment.
+      ASL, price breaks, reorder points, cycle counts, and moving-average costing live in <code>inv</code>.
+    </p>
+    <h2>Items</h2>
+    <ul class="mfg-list" id="itemList"></ul>
+    <h2>Purchase orders</h2>
+    <ul class="mfg-list" id="poList"></ul>
+    <p class="mfg-status" id="status"></p>
+    <script src="../static/mfg-api.js"></script>
+    <script>
+      const status = document.getElementById("status");
+
+      async function loadInv() {
+        const orgId = MfgPortal.organizationId();
+        const items = await MfgPortal.runSemanticRequest("inv.item.list", {
+          organization_id: orgId,
+        });
+        document.getElementById("itemList").innerHTML = items
+          .map((i) => `<li><strong>${i.item_number}</strong> — on hand ${i.qty_on_hand ?? "?"}</li>`)
+          .join("") || "<li>No items (inv module not enabled)</li>";
+
+        const pos = await MfgPortal.runSemanticRequest("inv.purchase_order.list", {
+          organization_id: orgId,
+        });
+        document.getElementById("poList").innerHTML = pos
+          .map((p) => `<li>PO #${p.purchase_order_id} — ${p.status}</li>`)
+          .join("") || "<li>No POs</li>";
+      }
+
+      loadInv().catch((err) => MfgPortal.setStatus(status, err.message, true));
+    </script>
+  </body>
+</html>

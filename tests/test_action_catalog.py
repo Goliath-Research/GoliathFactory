@@ -12,6 +12,8 @@ def test_phase1_domain_actions_typed() -> None:
         assert spec.level == ActionLevel.DOMAIN
         assert spec.input_model.model_json_schema()
         assert spec.output_model.model_json_schema()
+        if spec.resolved_exposure == ActionExposure.HIDDEN:
+            continue
         assert spec.resolved_exposure == ActionExposure.RBAC
         assert spec.required_permission
 
@@ -35,6 +37,9 @@ def test_phase2_quality_actions_typed() -> None:
         "mfg.ncr.open",
         "mfg.ncr.disposition",
         "mfg.lot.coc_generate",
+        "mfg.capa.close",
+        "mfg.fai.start",
+        "mfg.fai.approve",
     }
     for spec in ACTIONS:
         if spec.action_name not in names:

@@ -5,7 +5,9 @@
 --   mfg.work_order.read, mfg.work_order.release
 --   mfg.traveler.read, mfg.traveler.sign
 --   mfg.trace.read, mfg.trace.write
---   mfg.quality.read, mfg.quality.inspect, mfg.quality.mrb
+--   mfg.quality.read, mfg.quality.inspect, mfg.quality.mrb, mfg.quality.approve
+--   mfg.gauge.read
+--   mfg.document.read, mfg.document.write, mfg.document.approve
 --   mfg.audit.read
 --   mfg.inv.receive, mfg.inv.issue (stub actions until platform inv module)
 -- Planned factory roles (plant manager, supervisor, operator, quality, maintenance, buyer,

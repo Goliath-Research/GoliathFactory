@@ -144,6 +144,79 @@ BEGIN
     );
   END IF;
 END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_type t
+    JOIN pg_namespace n ON n.oid = t.typnamespace
+    WHERE n.nspname = 'portal' AND t.typname = 'mfg_capa_row'
+  ) THEN
+    CREATE TYPE portal.mfg_capa_row AS (
+  capa_id integer,
+  site_id integer,
+  capa_number text,
+  title text,
+  status text,
+  source_ncr_count integer,
+  open_action_count integer
+    );
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_type t
+    JOIN pg_namespace n ON n.oid = t.typnamespace
+    WHERE n.nspname = 'portal' AND t.typname = 'mfg_gauge_row'
+  ) THEN
+    CREATE TYPE portal.mfg_gauge_row AS (
+  gauge_id integer,
+  site_id integer,
+  gauge_tag text,
+  gauge_type text,
+  locked_out boolean,
+  status text
+    );
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_type t
+    JOIN pg_namespace n ON n.oid = t.typnamespace
+    WHERE n.nspname = 'portal' AND t.typname = 'mfg_document_row'
+  ) THEN
+    CREATE TYPE portal.mfg_document_row AS (
+  document_id integer,
+  site_id integer,
+  doc_number text,
+  title text,
+  doc_type text
+    );
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_type t
+    JOIN pg_namespace n ON n.oid = t.typnamespace
+    WHERE n.nspname = 'portal' AND t.typname = 'mfg_first_article_row'
+  ) THEN
+    CREATE TYPE portal.mfg_first_article_row AS (
+  first_article_id integer,
+  site_id integer,
+  work_order_id integer,
+  part_number text,
+  part_revision text,
+  status text,
+  result_count integer
+    );
+  END IF;
+END $$;
 DO $$
 BEGIN
   IF NOT EXISTS (
