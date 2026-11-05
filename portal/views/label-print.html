@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Factory · Traveler label</title>
+    <link rel="stylesheet" href="../static/mfg-shell.css" />
+  </head>
+  <body>
+    <h1 class="no-print">Traveler / lot label</h1>
+    <div class="mfg-toolbar no-print">
+      <label>Work order ID <input id="workOrderId" type="number" value="101" /></label>
+      <button type="button" class="secondary" id="loadBtn">Preview</button>
+      <button type="button" class="primary" onclick="window.print()">Print</button>
+    </div>
+    <div class="mfg-card" id="label">
+      <h2>GoliathFactory traveler</h2>
+      <p id="labelBody" class="mfg-muted">Load a work order to preview the printable label.</p>
+    </div>
+    <p class="mfg-status no-print" id="status"></p>
+    <script src="../static/mfg-api.js"></script>
+    <script>
+      const status = document.getElementById("status");
+      document.getElementById("loadBtn").addEventListener("click", async () => {
+        const workOrderId = Number(document.getElementById("workOrderId").value);
+        try {
+          const woRows = await MfgPortal.runSemanticRequest("mfg.work_order.list_open", {
+            site_id: MfgPortal.siteId(),
+          });
+          const wo = woRows.find((w) => w.work_order_id === workOrderId) || woRows[0];
+          const steps = await MfgPortal.runSemanticRequest("mfg.traveler_step.by_work_order", {
+            work_order_id: workOrderId,
+          });
+          document.getElementById("labelBody").innerHTML = `
+            <strong>WO ${workOrderId}</strong><br/>
+            ${wo ? `${wo.part_number} rev ${wo.part_revision} · qty ${wo.quantity}` : ""}<br/>
+            <br/>Operations:<br/>
+            ${steps.map((s) => `${s.seq}. ${s.operation_code} — ${s.status}`).join("<br/>")}
+          `;
+          MfgPortal.setStatus(status, "Label ready — use Print for paper backup");
+        } catch (err) {
+          MfgPortal.setStatus(status, err.message, true);
+        }
+      });
+    </script>
+  </body>
+</html>

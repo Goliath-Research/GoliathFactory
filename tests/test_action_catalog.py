@@ -26,3 +26,19 @@ def test_traveler_sign_off_metadata() -> None:
     spec = next(a for a in ACTIONS if a.action_name == "mfg.traveler_step.sign_off")
     assert spec.capability == "mfg.prod"
     assert spec.entity_code == "traveler_step"
+    assert spec.in_process_handler
+
+
+def test_phase2_quality_actions_typed() -> None:
+    names = {
+        "mfg.inspection_result.record",
+        "mfg.ncr.open",
+        "mfg.ncr.disposition",
+        "mfg.lot.coc_generate",
+    }
+    for spec in ACTIONS:
+        if spec.action_name not in names:
+            continue
+        assert spec.in_process_handler
+        assert spec.required_permission is not None
+        assert spec.required_permission.startswith("mfg.")

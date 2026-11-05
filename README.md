@@ -2,12 +2,13 @@
 
 GoliathApp specialization for manufacturing operations: work orders and signed travelers, QC inspections, lot traceability and genealogy, NCR/CAPA, inventory and purchasing, and maintenance. Initial targets are 10–50 person precision shops (AS9100, ISO 13485, ISO 9001) and food processors (FSMA 204) in Florida.
 
-Status: **Phase 1 in development** — core schemas (`fac_eng`, `fac_prod`, `fac_trace`), semantic namespace `mfg`, Phase 1 NavTree nodes, and typed action stubs. See [`docs/plan.md`](docs/plan.md).
+Status: **Phase 2 pilot v1 in development** — tablet portal views, quality schemas (`fac_qual`), NCR/disposition actions, lot genealogy UI, domain audit log, and GoliathApp `inv` hooks (see [`docs/inv-dependency.md`](docs/inv-dependency.md)). Phase 1 core data remains on `main`. See [`docs/plan.md`](docs/plan.md).
 
 ## Layout
 
 | Path | Purpose |
 | --- | --- |
+| [`portal/`](portal/) | Tablet-friendly HTML views, `frames.json`, and `MfgPortal` API helpers |
 | [`docs/plan.md`](docs/plan.md) | Full plan: domain model, inventory, workflows, DomainPrograms, schema, roles, views, roadmap, decisions |
 | [`src/goliath_factory/`](src/goliath_factory/) | Python package (semantic specs, actions, seed helpers) |
 | [`database/schema/`](database/schema/) | Ordered SQL apply scripts (views, RLS, semantic functions, NavTree) |

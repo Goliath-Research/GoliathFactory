@@ -1,4 +1,4 @@
--- GoliathFactory Phase 1 — no extra extensions required for core schemas
+-- GoliathFactory — PostgreSQL extensions
 SET client_min_messages = warning;
 
-SELECT 1;
+CREATE EXTENSION IF NOT EXISTS pgcrypto;

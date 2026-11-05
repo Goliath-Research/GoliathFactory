@@ -5,9 +5,17 @@ from __future__ import annotations
 from goliath_app.semantic.spec import SemanticAttributeSpec, SemanticEntitySpec, SemanticRequestSpec
 
 from goliath_factory.semantic.models import (
+    AuditByEntityParams,
+    AuditLogRow,
     GenealogyRow,
+    InspectionPlanByPartParams,
+    InspectionPlanRow,
+    InspectionResultByLotParams,
+    InspectionResultRow,
     LotGenealogyParams,
     LotRow,
+    NcrListOpenParams,
+    NcrRow,
     PartRevisionRow,
     RoutingRow,
     TravelerStepByWorkOrderParams,
@@ -155,12 +163,75 @@ LOT_ENTITY = SemanticEntitySpec(
     ),
 )
 
+INSPECTION_PLAN_ENTITY = SemanticEntitySpec(
+    namespace="mfg",
+    code="inspection_plan",
+    display_name="Inspection plan",
+    description="Part revision inspection plan with ballooned characteristics.",
+    schema_version="1",
+    row_model=InspectionPlanRow,
+    storage_relation="fac_qual.v_inspection_plan",
+    attributes=(
+        SemanticAttributeSpec("inspection_plan_id", "inspection_plan_id", "integer", "key", ()),
+        SemanticAttributeSpec("site_id", "site_id", "integer", "filter", ("eq",)),
+        SemanticAttributeSpec(
+            "part_revision_id",
+            "part_revision_id",
+            "integer",
+            "filter",
+            ("eq",),
+        ),
+        SemanticAttributeSpec("part_number", "part_number", "string", "label", ("eq",)),
+    ),
+)
+
+INSPECTION_RESULT_ENTITY = SemanticEntitySpec(
+    namespace="mfg",
+    code="inspection_result",
+    display_name="Inspection result",
+    description="Measured characteristic result with pass/fail and inspector.",
+    schema_version="1",
+    row_model=InspectionResultRow,
+    storage_relation="fac_qual.v_inspection_result",
+    attributes=(
+        SemanticAttributeSpec(
+            "inspection_result_id",
+            "inspection_result_id",
+            "integer",
+            "key",
+            (),
+        ),
+        SemanticAttributeSpec("site_id", "site_id", "integer", "filter", ("eq",)),
+        SemanticAttributeSpec("lot_id", "lot_id", "integer", "filter", ("eq",)),
+        SemanticAttributeSpec("pass_fail", "pass_fail", "string", "attribute", ("eq",)),
+    ),
+)
+
+NCR_ENTITY = SemanticEntitySpec(
+    namespace="mfg",
+    code="ncr",
+    display_name="Nonconformance",
+    description="Open or dispositioned nonconformance with containment and MRB.",
+    schema_version="1",
+    row_model=NcrRow,
+    storage_relation="fac_qual.v_ncr",
+    attributes=(
+        SemanticAttributeSpec("ncr_id", "ncr_id", "integer", "key", ()),
+        SemanticAttributeSpec("site_id", "site_id", "integer", "filter", ("eq",)),
+        SemanticAttributeSpec("status", "status", "string", "attribute", ("eq", "in")),
+        SemanticAttributeSpec("defect_code", "defect_code", "string", "attribute", ("eq",)),
+    ),
+)
+
 SEMANTIC_CATALOG: list[SemanticEntitySpec] = [
     PART_ENTITY,
     ROUTING_ENTITY,
     WORK_ORDER_ENTITY,
     TRAVELER_STEP_ENTITY,
     LOT_ENTITY,
+    INSPECTION_PLAN_ENTITY,
+    INSPECTION_RESULT_ENTITY,
+    NCR_ENTITY,
 ]
 
 SEMANTIC_REQUESTS: list[SemanticRequestSpec] = [
@@ -198,6 +269,54 @@ SEMANTIC_REQUESTS: list[SemanticRequestSpec] = [
         params_model=LotGenealogyParams,
         result_row_model=GenealogyRow,
         required_permission="mfg.trace.read",
+        max_rows=500,
+    ),
+    SemanticRequestSpec(
+        request_code="mfg.inspection_plan.by_part",
+        version="1",
+        namespace="mfg",
+        entity_code="inspection_plan",
+        target_kind="function",
+        target_name="fac_qual.fn_semantic_inspection_plan_by_part",
+        params_model=InspectionPlanByPartParams,
+        result_row_model=InspectionPlanRow,
+        required_permission="mfg.quality.read",
+        max_rows=500,
+    ),
+    SemanticRequestSpec(
+        request_code="mfg.inspection_result.by_lot",
+        version="1",
+        namespace="mfg",
+        entity_code="inspection_result",
+        target_kind="function",
+        target_name="fac_qual.fn_semantic_inspection_result_by_lot",
+        params_model=InspectionResultByLotParams,
+        result_row_model=InspectionResultRow,
+        required_permission="mfg.quality.read",
+        max_rows=500,
+    ),
+    SemanticRequestSpec(
+        request_code="mfg.ncr.list_open",
+        version="1",
+        namespace="mfg",
+        entity_code="ncr",
+        target_kind="function",
+        target_name="fac_qual.fn_semantic_ncr_list_open",
+        params_model=NcrListOpenParams,
+        result_row_model=NcrRow,
+        required_permission="mfg.quality.read",
+        max_rows=500,
+    ),
+    SemanticRequestSpec(
+        request_code="mfg.audit.by_entity",
+        version="1",
+        namespace="mfg",
+        entity_code="work_order",
+        target_kind="function",
+        target_name="fac_audit.fn_semantic_audit_by_entity",
+        params_model=AuditByEntityParams,
+        result_row_model=AuditLogRow,
+        required_permission="mfg.audit.read",
         max_rows=500,
     ),
 ]

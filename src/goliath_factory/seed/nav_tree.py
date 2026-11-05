@@ -9,7 +9,11 @@ NAV_SPEC = (
     ("Factory", None, 25, "mfg_root", "mfg"),
     ("Work orders", "Factory", 10, "mfg_work_orders", "mfg.work_order.list_open"),
     ("Shop floor (traveler)", "Factory", 20, "mfg_shop_floor", "mfg.traveler_step.by_work_order"),
+    ("Quality", "Factory", 25, "mfg_quality", "mfg"),
+    ("Inspections", "Quality", 10, "mfg_inspections", "mfg.inspection_result.by_lot"),
+    ("NCR / CAPA", "Quality", 20, "mfg_ncr", "mfg.ncr.list_open"),
     ("Traceability", "Factory", 30, "mfg_traceability", "mfg.lot.genealogy"),
+    ("Receiving (pilot)", "Factory", 35, "mfg_receiving", "mfg.inv.receive_stub"),
 )
 
 

@@ -1,5 +1,345 @@
 {
   "entities": {
+    "mfg.inspection_plan": {
+      "attributes": [
+        {
+          "code": "inspection_plan_id",
+          "column_name": "inspection_plan_id",
+          "filterable_ops": [],
+          "json_type": "integer",
+          "role": "key"
+        },
+        {
+          "code": "site_id",
+          "column_name": "site_id",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "integer",
+          "role": "filter"
+        },
+        {
+          "code": "part_revision_id",
+          "column_name": "part_revision_id",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "integer",
+          "role": "filter"
+        },
+        {
+          "code": "part_number",
+          "column_name": "part_number",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "string",
+          "role": "label"
+        }
+      ],
+      "catalog_type_name": null,
+      "code": "inspection_plan",
+      "content_hash": "95d5bef14d81d2aa46582e9a349a60933ccc55c1b6a43e4764f07344c6ffc570",
+      "description": "Part revision inspection plan with ballooned characteristics.",
+      "display_name": "Inspection plan",
+      "meta_class_id": null,
+      "meta_class_name": null,
+      "namespace": "mfg",
+      "row_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "characteristic_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Characteristic Code"
+          },
+          "characteristic_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Characteristic Id"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "inspection_plan_id": {
+            "title": "Inspection Plan Id",
+            "type": "integer"
+          },
+          "nominal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Nominal"
+          },
+          "part_number": {
+            "title": "Part Number",
+            "type": "string"
+          },
+          "part_revision": {
+            "title": "Part Revision",
+            "type": "string"
+          },
+          "part_revision_id": {
+            "title": "Part Revision Id",
+            "type": "integer"
+          },
+          "plan_name": {
+            "title": "Plan Name",
+            "type": "string"
+          },
+          "plan_status": {
+            "title": "Plan Status",
+            "type": "string"
+          },
+          "seq": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Seq"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "tolerance_minus": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Tolerance Minus"
+          },
+          "tolerance_plus": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Tolerance Plus"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Unit"
+          }
+        },
+        "required": [
+          "inspection_plan_id",
+          "site_id",
+          "part_revision_id",
+          "part_number",
+          "part_revision",
+          "plan_name",
+          "plan_status"
+        ],
+        "title": "InspectionPlanRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_inspection_plan_row",
+      "schema_id": "goliath.semantic/mfg/inspection_plan/1",
+      "schema_version": "1",
+      "storage_relation": "fac_qual.v_inspection_plan"
+    },
+    "mfg.inspection_result": {
+      "attributes": [
+        {
+          "code": "inspection_result_id",
+          "column_name": "inspection_result_id",
+          "filterable_ops": [],
+          "json_type": "integer",
+          "role": "key"
+        },
+        {
+          "code": "site_id",
+          "column_name": "site_id",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "integer",
+          "role": "filter"
+        },
+        {
+          "code": "lot_id",
+          "column_name": "lot_id",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "integer",
+          "role": "filter"
+        },
+        {
+          "code": "pass_fail",
+          "column_name": "pass_fail",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "string",
+          "role": "attribute"
+        }
+      ],
+      "catalog_type_name": null,
+      "code": "inspection_result",
+      "content_hash": "08b354ce5a54169d876931826080d39afaaeadc5794fb291d62af34be494f5b7",
+      "description": "Measured characteristic result with pass/fail and inspector.",
+      "display_name": "Inspection result",
+      "meta_class_id": null,
+      "meta_class_name": null,
+      "namespace": "mfg",
+      "row_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "characteristic_code": {
+            "title": "Characteristic Code",
+            "type": "string"
+          },
+          "characteristic_id": {
+            "title": "Characteristic Id",
+            "type": "integer"
+          },
+          "inspection_result_id": {
+            "title": "Inspection Result Id",
+            "type": "integer"
+          },
+          "inspector_user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Inspector User Id"
+          },
+          "lot_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Lot Id"
+          },
+          "lot_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Lot Number"
+          },
+          "measured_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Measured Value"
+          },
+          "pass_fail": {
+            "title": "Pass Fail",
+            "type": "string"
+          },
+          "piece_number": {
+            "title": "Piece Number",
+            "type": "integer"
+          },
+          "recorded_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Recorded At"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "inspection_result_id",
+          "characteristic_id",
+          "characteristic_code",
+          "piece_number",
+          "pass_fail",
+          "site_id"
+        ],
+        "title": "InspectionResultRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_inspection_result_row",
+      "schema_id": "goliath.semantic/mfg/inspection_result/1",
+      "schema_version": "1",
+      "storage_relation": "fac_qual.v_inspection_result"
+    },
     "mfg.lot": {
       "attributes": [
         {
@@ -125,6 +465,164 @@
       "schema_id": "goliath.semantic/mfg/lot/1",
       "schema_version": "1",
       "storage_relation": "fac_trace.v_lot"
+    },
+    "mfg.ncr": {
+      "attributes": [
+        {
+          "code": "ncr_id",
+          "column_name": "ncr_id",
+          "filterable_ops": [],
+          "json_type": "integer",
+          "role": "key"
+        },
+        {
+          "code": "site_id",
+          "column_name": "site_id",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "integer",
+          "role": "filter"
+        },
+        {
+          "code": "status",
+          "column_name": "status",
+          "filterable_ops": [
+            "eq",
+            "in"
+          ],
+          "json_type": "string",
+          "role": "attribute"
+        },
+        {
+          "code": "defect_code",
+          "column_name": "defect_code",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "string",
+          "role": "attribute"
+        }
+      ],
+      "catalog_type_name": null,
+      "code": "ncr",
+      "content_hash": "1125d887b8e1452cb8ea376252dd26cc2d23a3fa0bd7f187d0b0b5c47305f032",
+      "description": "Open or dispositioned nonconformance with containment and MRB.",
+      "display_name": "Nonconformance",
+      "meta_class_id": null,
+      "meta_class_name": null,
+      "namespace": "mfg",
+      "row_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "containment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Containment"
+          },
+          "defect_code": {
+            "title": "Defect Code",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "disposition": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Disposition"
+          },
+          "lot_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Lot Id"
+          },
+          "lot_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Lot Number"
+          },
+          "ncr_id": {
+            "title": "Ncr Id",
+            "type": "integer"
+          },
+          "opened_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Opened At"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "work_order_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Work Order Id"
+          }
+        },
+        "required": [
+          "ncr_id",
+          "site_id",
+          "defect_code",
+          "description",
+          "status"
+        ],
+        "title": "NcrRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_ncr_row",
+      "schema_id": "goliath.semantic/mfg/ncr/1",
+      "schema_version": "1",
+      "storage_relation": "fac_qual.v_ncr"
     },
     "mfg.part": {
       "attributes": [
@@ -545,7 +1043,7 @@
       ],
       "catalog_type_name": null,
       "code": "traveler_step",
-      "content_hash": "d446a952b453ea7683569fc15382af4ab8894b99ef2855ef4909e162c51f3087",
+      "content_hash": "563088bc22f0c48d06d3070dca635998ad55d9b8042b9f8379731d4a9faefb88",
       "description": "Signed operation step on a work-order traveler.",
       "display_name": "Traveler step",
       "meta_class_id": null,
@@ -606,6 +1104,18 @@
             "default": null,
             "title": "Qty Scrap"
           },
+          "record_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Record Hash"
+          },
           "routing_operation_id": {
             "anyOf": [
               {
@@ -622,6 +1132,18 @@
             "title": "Seq",
             "type": "integer"
           },
+          "signature_meaning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Signature Meaning"
+          },
           "signed_at": {
             "anyOf": [
               {
@@ -635,9 +1157,34 @@
             "default": null,
             "title": "Signed At"
           },
+          "signer_user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Signer User Id"
+          },
           "site_id": {
             "title": "Site Id",
             "type": "integer"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Started At"
           },
           "status": {
             "title": "Status",
@@ -818,6 +1365,445 @@
     }
   },
   "requests": {
+    "mfg.audit.by_entity": {
+      "base_namespace": null,
+      "content_hash": "e3adaf8ddc1c48a80472e0ded89017ef4a4b6452e3277fea622a04eb798983d9",
+      "entity_code": "work_order",
+      "filter_template": null,
+      "max_rows": 500,
+      "namespace": "mfg",
+      "params_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "entity_id": {
+            "title": "Entity Id",
+            "type": "integer"
+          },
+          "entity_type": {
+            "title": "Entity Type",
+            "type": "string"
+          },
+          "site_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Site Id"
+          }
+        },
+        "required": [
+          "entity_type",
+          "entity_id"
+        ],
+        "title": "AuditByEntityParams",
+        "type": "object"
+      },
+      "request_code": "mfg.audit.by_entity",
+      "required_permission": "mfg.audit.read",
+      "result_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "action_name": {
+            "title": "Action Name",
+            "type": "string"
+          },
+          "actor_user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Actor User Id"
+          },
+          "audit_id": {
+            "title": "Audit Id",
+            "type": "integer"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Created At"
+          },
+          "entity_id": {
+            "title": "Entity Id",
+            "type": "integer"
+          },
+          "entity_type": {
+            "title": "Entity Type",
+            "type": "string"
+          },
+          "record_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Record Hash"
+          },
+          "signature_meaning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Signature Meaning"
+          },
+          "site_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Site Id"
+          }
+        },
+        "required": [
+          "audit_id",
+          "entity_type",
+          "entity_id",
+          "action_name"
+        ],
+        "title": "AuditLogRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_audit_log_row",
+      "schema_id": "goliath.semantic/mfg/mfg.audit.by_entity/1",
+      "target_kind": "function",
+      "target_name": "fac_audit.fn_semantic_audit_by_entity",
+      "version": "1"
+    },
+    "mfg.inspection_plan.by_part": {
+      "base_namespace": null,
+      "content_hash": "b2fc4282d5d29842ab965959f2c85fc9067f915ab3cbe9ef4625ec216bc1e6a5",
+      "entity_code": "inspection_plan",
+      "filter_template": null,
+      "max_rows": 500,
+      "namespace": "mfg",
+      "params_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "part_revision_id": {
+            "title": "Part Revision Id",
+            "type": "integer"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "site_id",
+          "part_revision_id"
+        ],
+        "title": "InspectionPlanByPartParams",
+        "type": "object"
+      },
+      "request_code": "mfg.inspection_plan.by_part",
+      "required_permission": "mfg.quality.read",
+      "result_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "characteristic_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Characteristic Code"
+          },
+          "characteristic_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Characteristic Id"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "inspection_plan_id": {
+            "title": "Inspection Plan Id",
+            "type": "integer"
+          },
+          "nominal": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Nominal"
+          },
+          "part_number": {
+            "title": "Part Number",
+            "type": "string"
+          },
+          "part_revision": {
+            "title": "Part Revision",
+            "type": "string"
+          },
+          "part_revision_id": {
+            "title": "Part Revision Id",
+            "type": "integer"
+          },
+          "plan_name": {
+            "title": "Plan Name",
+            "type": "string"
+          },
+          "plan_status": {
+            "title": "Plan Status",
+            "type": "string"
+          },
+          "seq": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Seq"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "tolerance_minus": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Tolerance Minus"
+          },
+          "tolerance_plus": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Tolerance Plus"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Unit"
+          }
+        },
+        "required": [
+          "inspection_plan_id",
+          "site_id",
+          "part_revision_id",
+          "part_number",
+          "part_revision",
+          "plan_name",
+          "plan_status"
+        ],
+        "title": "InspectionPlanRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_inspection_plan_row",
+      "schema_id": "goliath.semantic/mfg/mfg.inspection_plan.by_part/1",
+      "target_kind": "function",
+      "target_name": "fac_qual.fn_semantic_inspection_plan_by_part",
+      "version": "1"
+    },
+    "mfg.inspection_result.by_lot": {
+      "base_namespace": null,
+      "content_hash": "9bfc8d9a78bf2615b4373dc3def25fa47584137082d40688a9bce791ced3ab0c",
+      "entity_code": "inspection_result",
+      "filter_template": null,
+      "max_rows": 500,
+      "namespace": "mfg",
+      "params_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "lot_id": {
+            "title": "Lot Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "lot_id"
+        ],
+        "title": "InspectionResultByLotParams",
+        "type": "object"
+      },
+      "request_code": "mfg.inspection_result.by_lot",
+      "required_permission": "mfg.quality.read",
+      "result_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "characteristic_code": {
+            "title": "Characteristic Code",
+            "type": "string"
+          },
+          "characteristic_id": {
+            "title": "Characteristic Id",
+            "type": "integer"
+          },
+          "inspection_result_id": {
+            "title": "Inspection Result Id",
+            "type": "integer"
+          },
+          "inspector_user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Inspector User Id"
+          },
+          "lot_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Lot Id"
+          },
+          "lot_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Lot Number"
+          },
+          "measured_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Measured Value"
+          },
+          "pass_fail": {
+            "title": "Pass Fail",
+            "type": "string"
+          },
+          "piece_number": {
+            "title": "Piece Number",
+            "type": "integer"
+          },
+          "recorded_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Recorded At"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "inspection_result_id",
+          "characteristic_id",
+          "characteristic_code",
+          "piece_number",
+          "pass_fail",
+          "site_id"
+        ],
+        "title": "InspectionResultRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_inspection_result_row",
+      "schema_id": "goliath.semantic/mfg/mfg.inspection_result.by_lot/1",
+      "target_kind": "function",
+      "target_name": "fac_qual.fn_semantic_inspection_result_by_lot",
+      "version": "1"
+    },
     "mfg.lot.genealogy": {
       "base_namespace": null,
       "content_hash": "c382a9e292e463c110b77ced6870a949bd35665bffa2ad3551f8c701d6e990ba",
@@ -926,9 +1912,157 @@
       "target_name": "fac_trace.fn_semantic_lot_genealogy",
       "version": "1"
     },
+    "mfg.ncr.list_open": {
+      "base_namespace": null,
+      "content_hash": "a3b61bb70d421cf609f2e1f17e8c54203d3f0ec37781a9f5f96005148cf29abf",
+      "entity_code": "ncr",
+      "filter_template": null,
+      "max_rows": 500,
+      "namespace": "mfg",
+      "params_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          }
+        },
+        "required": [
+          "site_id"
+        ],
+        "title": "NcrListOpenParams",
+        "type": "object"
+      },
+      "request_code": "mfg.ncr.list_open",
+      "required_permission": "mfg.quality.read",
+      "result_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "containment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Containment"
+          },
+          "defect_code": {
+            "title": "Defect Code",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "disposition": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Disposition"
+          },
+          "lot_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Lot Id"
+          },
+          "lot_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Lot Number"
+          },
+          "ncr_id": {
+            "title": "Ncr Id",
+            "type": "integer"
+          },
+          "opened_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Opened At"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "work_order_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Work Order Id"
+          }
+        },
+        "required": [
+          "ncr_id",
+          "site_id",
+          "defect_code",
+          "description",
+          "status"
+        ],
+        "title": "NcrRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_ncr_row",
+      "schema_id": "goliath.semantic/mfg/mfg.ncr.list_open/1",
+      "target_kind": "function",
+      "target_name": "fac_qual.fn_semantic_ncr_list_open",
+      "version": "1"
+    },
     "mfg.traveler_step.by_work_order": {
       "base_namespace": null,
-      "content_hash": "f538ca30f7468ccd0fbd52d63aba308863bab232fa2e1d292edcf80badd29527",
+      "content_hash": "3fc51d6a6f0331aa3735736cf02f161dda0648d4d453901b43e0735f63aa8cda",
       "entity_code": "traveler_step",
       "filter_template": null,
       "max_rows": 500,
@@ -1004,6 +2138,18 @@
             "default": null,
             "title": "Qty Scrap"
           },
+          "record_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Record Hash"
+          },
           "routing_operation_id": {
             "anyOf": [
               {
@@ -1020,6 +2166,18 @@
             "title": "Seq",
             "type": "integer"
           },
+          "signature_meaning": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Signature Meaning"
+          },
           "signed_at": {
             "anyOf": [
               {
@@ -1033,9 +2191,34 @@
             "default": null,
             "title": "Signed At"
           },
+          "signer_user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Signer User Id"
+          },
           "site_id": {
             "title": "Site Id",
             "type": "integer"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Started At"
           },
           "status": {
             "title": "Status",

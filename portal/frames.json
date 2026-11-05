@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "description": "GoliathFactory portal FrameKey → view mapping for GoliathApp NavTree NodeInfos.FrameKey",
+  "frames": {
+    "mfg": { "view": "views/shell.html", "title": "Factory" },
+    "mfg.work_order.list_open": { "view": "views/work-orders.html", "title": "Work orders" },
+    "mfg.traveler_step.by_work_order": { "view": "views/shop-floor.html", "title": "Shop floor" },
+    "mfg.inspection_result.by_lot": { "view": "views/inspections.html", "title": "Inspections" },
+    "mfg.ncr.list_open": { "view": "views/ncr.html", "title": "NCR / CAPA" },
+    "mfg.lot.genealogy": { "view": "views/genealogy.html", "title": "Lot genealogy" },
+    "mfg.inv.receive_stub": { "view": "views/receiving.html", "title": "Receiving" },
+    "mfg.label.traveler_print": { "view": "views/label-print.html", "title": "Traveler label" }
+  }
+}

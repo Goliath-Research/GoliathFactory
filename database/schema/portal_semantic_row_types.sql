@@ -90,6 +90,60 @@ BEGIN
     );
   END IF;
 END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_type t
+    JOIN pg_namespace n ON n.oid = t.typnamespace
+    WHERE n.nspname = 'portal' AND t.typname = 'mfg_inspection_plan_row'
+  ) THEN
+    CREATE TYPE portal.mfg_inspection_plan_row AS (
+  inspection_plan_id integer,
+  site_id integer,
+  part_revision_id integer,
+  part_number text,
+  part_revision text,
+  plan_name text,
+  plan_status text
+    );
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_type t
+    JOIN pg_namespace n ON n.oid = t.typnamespace
+    WHERE n.nspname = 'portal' AND t.typname = 'mfg_inspection_result_row'
+  ) THEN
+    CREATE TYPE portal.mfg_inspection_result_row AS (
+  inspection_result_id integer,
+  characteristic_id integer,
+  characteristic_code text,
+  piece_number integer,
+  pass_fail text,
+  site_id integer
+    );
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_type t
+    JOIN pg_namespace n ON n.oid = t.typnamespace
+    WHERE n.nspname = 'portal' AND t.typname = 'mfg_ncr_row'
+  ) THEN
+    CREATE TYPE portal.mfg_ncr_row AS (
+  ncr_id integer,
+  site_id integer,
+  defect_code text,
+  description text,
+  status text
+    );
+  END IF;
+END $$;
 DO $$
 BEGIN
   IF NOT EXISTS (
@@ -106,6 +160,27 @@ BEGIN
   link_kind text,
   related_lot_id integer,
   related_lot_number text
+    );
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_type t
+    JOIN pg_namespace n ON n.oid = t.typnamespace
+    WHERE n.nspname = 'portal' AND t.typname = 'mfg_audit_log_row'
+  ) THEN
+    CREATE TYPE portal.mfg_audit_log_row AS (
+  audit_id integer,
+  site_id integer,
+  entity_type text,
+  entity_id integer,
+  action_name text,
+  actor_user_id integer,
+  signature_meaning text,
+  record_hash text,
+  created_at text
     );
   END IF;
 END $$;

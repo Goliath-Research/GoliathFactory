@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Factory · NCR</title>
+    <link rel="stylesheet" href="../static/mfg-shell.css" />
+  </head>
+  <body>
+    <h1>NCR queue</h1>
+    <ul class="mfg-list" id="ncrList"></ul>
+    <div class="mfg-card">
+      <h2>Open NCR</h2>
+      <form id="openForm" class="mfg-form-grid">
+        <label>Defect code <input name="defect_code" required value="DIM-OOS" /></label>
+        <label>Description <textarea name="description" required rows="2">Characteristic out of tolerance</textarea></label>
+        <label>Containment <input name="containment" value="Hold tagged parts" /></label>
+        <button class="primary" type="submit">Open NCR</button>
+      </form>
+    </div>
+    <div class="mfg-card">
+      <h2>MRB disposition</h2>
+      <form id="dispForm" class="mfg-form-grid">
+        <label>NCR ID <input name="ncr_id" type="number" required /></label>
+        <label>
+          Disposition
+          <select name="disposition">
+            <option value="use_as_is">Use as-is</option>
+            <option value="rework">Rework</option>
+            <option value="scrap">Scrap</option>
+            <option value="rtv">RTV</option>
+          </select>
+        </label>
+        <label>Signature meaning <input name="signature_meaning" required value="MRB disposition approved" /></label>
+        <button class="primary" type="submit">Record disposition</button>
+      </form>
+    </div>
+    <p class="mfg-status" id="status"></p>
+    <script src="../static/mfg-api.js"></script>
+    <script>
+      const status = document.getElementById("status");
+      const ncrList = document.getElementById("ncrList");
+
+      async function refresh() {
+        const rows = await MfgPortal.runSemanticRequest("mfg.ncr.list_open", {
+          site_id: MfgPortal.siteId(),
+          status: "open",
+        });
+        ncrList.innerHTML = rows
+          .map(
+            (n) =>
+              `<li><strong>${n.defect_code}</strong> · NCR ${n.ncr_id}
+              <div class="mfg-muted">${n.description}</div>
+              ${n.lot_number ? `<div class="mfg-muted">Lot ${n.lot_number}</div>` : ""}</li>`
+          )
+          .join("");
+        if (rows[0]) document.querySelector('[name="ncr_id"]').value = rows[0].ncr_id;
+      }
+
+      document.getElementById("openForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const data = new FormData(event.target);
+        try {
+          await MfgPortal.runAction("mfg.ncr.open", {
+            site_id: MfgPortal.siteId(),
+            defect_code: String(data.get("defect_code")),
+            description: String(data.get("description")),
+            containment: String(data.get("containment") || ""),
+          });
+          MfgPortal.setStatus(status, "NCR opened");
+          await refresh();
+        } catch (err) {
+          MfgPortal.setStatus(status, err.message, true);
+        }
+      });
+
+      document.getElementById("dispForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const data = new FormData(event.target);
+        try {
+          await MfgPortal.runAction("mfg.ncr.disposition", {
+            ncr_id: Number(data.get("ncr_id")),
+            disposition: String(data.get("disposition")),
+            signature_meaning: String(data.get("signature_meaning")),
+          });
+          MfgPortal.setStatus(status, "Disposition recorded");
+          await refresh();
+        } catch (err) {
+          MfgPortal.setStatus(status, err.message, true);
+        }
+      });
+
+      refresh().catch((err) => MfgPortal.setStatus(status, err.message, true));
+    </script>
+  </body>
+</html>

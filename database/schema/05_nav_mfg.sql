@@ -7,12 +7,12 @@ CREATE OR REPLACE FUNCTION fac_eng.sp_register_mfg_nav_child(
   p_info_name text,
   p_frame_key text
 )
-RETURNS void
+RETURNS integer
 LANGUAGE plpgsql
 AS $$
 DECLARE
   v_info integer;
-  v_exists integer;
+  v_node_id integer;
 BEGIN
   SELECT ni."Id" INTO v_info FROM portal."NodeInfos" ni WHERE ni."Name" = p_info_name;
   IF v_info IS NULL THEN
@@ -25,13 +25,15 @@ BEGIN
     WHERE "Id" = v_info AND "FrameKey" IS DISTINCT FROM p_frame_key;
   END IF;
 
-  SELECT n."ID" INTO v_exists
+  SELECT n."ID" INTO v_node_id
   FROM portal."NavTree" n
-  WHERE n."ParentID" = p_parent_id AND n."Caption" = p_caption;
+  WHERE n."ParentID" IS NOT DISTINCT FROM p_parent_id AND n."Caption" = p_caption;
 
-  IF v_exists IS NULL THEN
-    PERFORM portal.sp_nav_register_node(p_parent_id, p_caption, p_seq, v_info);
+  IF v_node_id IS NULL THEN
+    SELECT node_id INTO v_node_id
+    FROM portal.sp_nav_register_node(p_parent_id, p_caption, p_seq, v_info);
   END IF;
+  RETURN v_node_id;
 END;
 $$;
 
@@ -42,6 +44,7 @@ AS $$
 DECLARE
   v_root_info integer;
   v_root_id integer;
+  v_quality_id integer;
 BEGIN
   SELECT ni."Id" INTO v_root_info FROM portal."NodeInfos" ni WHERE ni."Name" = 'mfg_root';
   IF v_root_info IS NULL THEN
@@ -65,8 +68,22 @@ BEGIN
   PERFORM fac_eng.sp_register_mfg_nav_child(
     v_root_id, 'Shop floor (traveler)', 20, 'mfg_shop_floor', 'mfg.traveler_step.by_work_order'
   );
+
+  v_quality_id := fac_eng.sp_register_mfg_nav_child(
+    v_root_id, 'Quality', 25, 'mfg_quality', 'mfg'
+  );
+  PERFORM fac_eng.sp_register_mfg_nav_child(
+    v_quality_id, 'Inspections', 10, 'mfg_inspections', 'mfg.inspection_result.by_lot'
+  );
+  PERFORM fac_eng.sp_register_mfg_nav_child(
+    v_quality_id, 'NCR / CAPA', 20, 'mfg_ncr', 'mfg.ncr.list_open'
+  );
+
   PERFORM fac_eng.sp_register_mfg_nav_child(
     v_root_id, 'Traceability', 30, 'mfg_traceability', 'mfg.lot.genealogy'
+  );
+  PERFORM fac_eng.sp_register_mfg_nav_child(
+    v_root_id, 'Receiving (pilot)', 35, 'mfg_receiving', 'mfg.inv.receive_stub'
   );
 END;
 $$;

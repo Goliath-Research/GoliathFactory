@@ -69,6 +69,10 @@ class TravelerStepRow(BaseModel):
     qty_good: Optional[float] = None
     qty_scrap: Optional[float] = None
     signed_at: Optional[datetime] = None
+    started_at: Optional[datetime] = None
+    signer_user_id: Optional[int] = None
+    signature_meaning: Optional[str] = None
+    record_hash: Optional[str] = None
     site_id: int
 
 
@@ -116,3 +120,97 @@ class LotGenealogyParams(BaseModel):
 
     lot_id: int
     direction: Literal["forward", "backward"] = "forward"
+
+
+class InspectionPlanRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    inspection_plan_id: int
+    site_id: int
+    part_revision_id: int
+    part_number: str
+    part_revision: str
+    plan_name: str
+    plan_status: str
+    characteristic_id: Optional[int] = None
+    seq: Optional[int] = None
+    characteristic_code: Optional[str] = None
+    description: Optional[str] = None
+    nominal: Optional[float] = None
+    tolerance_plus: Optional[float] = None
+    tolerance_minus: Optional[float] = None
+    unit: Optional[str] = None
+
+
+class InspectionResultRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    inspection_result_id: int
+    characteristic_id: int
+    characteristic_code: str
+    lot_id: Optional[int] = None
+    lot_number: Optional[str] = None
+    piece_number: int
+    measured_value: Optional[float] = None
+    pass_fail: str
+    inspector_user_id: Optional[int] = None
+    recorded_at: Optional[datetime] = None
+    site_id: int
+
+
+class NcrRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    ncr_id: int
+    site_id: int
+    lot_id: Optional[int] = None
+    lot_number: Optional[str] = None
+    work_order_id: Optional[int] = None
+    defect_code: str
+    description: str
+    containment: Optional[str] = None
+    status: str
+    opened_at: Optional[datetime] = None
+    disposition: Optional[str] = None
+
+
+class AuditLogRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    audit_id: int
+    site_id: Optional[int] = None
+    entity_type: str
+    entity_id: int
+    action_name: str
+    actor_user_id: Optional[int] = None
+    signature_meaning: Optional[str] = None
+    record_hash: Optional[str] = None
+    created_at: Optional[datetime] = None
+
+
+class InspectionPlanByPartParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    site_id: int
+    part_revision_id: int
+
+
+class InspectionResultByLotParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    lot_id: int
+
+
+class NcrListOpenParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    site_id: int
+    status: Optional[str] = None
+
+
+class AuditByEntityParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    entity_type: str
+    entity_id: int
+    site_id: Optional[int] = None
