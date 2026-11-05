@@ -1,0 +1,1211 @@
+{
+  "entities": {
+    "mfg.lot": {
+      "attributes": [
+        {
+          "code": "lot_id",
+          "column_name": "lot_id",
+          "filterable_ops": [],
+          "json_type": "integer",
+          "role": "key"
+        },
+        {
+          "code": "site_id",
+          "column_name": "site_id",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "integer",
+          "role": "filter"
+        },
+        {
+          "code": "lot_number",
+          "column_name": "lot_number",
+          "filterable_ops": [
+            "eq",
+            "ilike"
+          ],
+          "json_type": "string",
+          "role": "label"
+        },
+        {
+          "code": "kind",
+          "column_name": "kind",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "string",
+          "role": "attribute"
+        },
+        {
+          "code": "heat_number",
+          "column_name": "heat_number",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "string",
+          "role": "attribute"
+        }
+      ],
+      "catalog_type_name": null,
+      "code": "lot",
+      "content_hash": "a7fa5f5307e765d91f22565a507c885959b1a788d53bfa63694dd43d45d97f02",
+      "description": "Production or material lot with heat/cert references and genealogy links.",
+      "display_name": "Lot",
+      "meta_class_id": null,
+      "meta_class_name": null,
+      "namespace": "mfg",
+      "row_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "cert_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Cert Ref"
+          },
+          "created_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Created At"
+          },
+          "heat_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Heat Number"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "lot_id": {
+            "title": "Lot Id",
+            "type": "integer"
+          },
+          "lot_number": {
+            "title": "Lot Number",
+            "type": "string"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "lot_id",
+          "site_id",
+          "lot_number",
+          "kind"
+        ],
+        "title": "LotRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_lot_row",
+      "schema_id": "goliath.semantic/mfg/lot/1",
+      "schema_version": "1",
+      "storage_relation": "fac_trace.v_lot"
+    },
+    "mfg.part": {
+      "attributes": [
+        {
+          "code": "part_revision_id",
+          "column_name": "part_revision_id",
+          "filterable_ops": [],
+          "json_type": "integer",
+          "role": "key"
+        },
+        {
+          "code": "organization_id",
+          "column_name": "organization_id",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "integer",
+          "role": "filter"
+        },
+        {
+          "code": "part_number",
+          "column_name": "part_number",
+          "filterable_ops": [
+            "eq",
+            "ilike"
+          ],
+          "json_type": "string",
+          "role": "label"
+        },
+        {
+          "code": "revision",
+          "column_name": "revision",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "string",
+          "role": "attribute"
+        },
+        {
+          "code": "material_spec",
+          "column_name": "material_spec",
+          "filterable_ops": [],
+          "json_type": "string",
+          "role": "attribute"
+        },
+        {
+          "code": "customer",
+          "column_name": "customer",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "string",
+          "role": "attribute"
+        },
+        {
+          "code": "effectivity_start",
+          "column_name": "effectivity_start",
+          "filterable_ops": [
+            "lte",
+            "gte"
+          ],
+          "json_type": "date",
+          "role": "attribute"
+        },
+        {
+          "code": "effectivity_end",
+          "column_name": "effectivity_end",
+          "filterable_ops": [
+            "lte",
+            "gte"
+          ],
+          "json_type": "date",
+          "role": "attribute"
+        }
+      ],
+      "catalog_type_name": null,
+      "code": "part",
+      "content_hash": "b92437b3d2d2bd2f18a4ef9bd90f8351fb5d86825c8afb58cbbea9c717ee065c",
+      "description": "Released part number and revision with material spec and effectivity.",
+      "display_name": "Part revision",
+      "meta_class_id": null,
+      "meta_class_name": null,
+      "namespace": "mfg",
+      "row_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "customer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Customer"
+          },
+          "effectivity_end": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Effectivity End"
+          },
+          "effectivity_start": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Effectivity Start"
+          },
+          "material_spec": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Material Spec"
+          },
+          "organization_id": {
+            "title": "Organization Id",
+            "type": "integer"
+          },
+          "part_number": {
+            "title": "Part Number",
+            "type": "string"
+          },
+          "part_revision_id": {
+            "title": "Part Revision Id",
+            "type": "integer"
+          },
+          "revision": {
+            "title": "Revision",
+            "type": "string"
+          }
+        },
+        "required": [
+          "part_revision_id",
+          "organization_id",
+          "part_number",
+          "revision"
+        ],
+        "title": "PartRevisionRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_part_row",
+      "schema_id": "goliath.semantic/mfg/part/1",
+      "schema_version": "1",
+      "storage_relation": "fac_eng.v_part_revision"
+    },
+    "mfg.routing": {
+      "attributes": [
+        {
+          "code": "routing_id",
+          "column_name": "routing_id",
+          "filterable_ops": [],
+          "json_type": "integer",
+          "role": "key"
+        },
+        {
+          "code": "part_revision_id",
+          "column_name": "part_revision_id",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "integer",
+          "role": "filter"
+        },
+        {
+          "code": "part_number",
+          "column_name": "part_number",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "string",
+          "role": "label"
+        },
+        {
+          "code": "status",
+          "column_name": "status",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "string",
+          "role": "attribute"
+        },
+        {
+          "code": "seq",
+          "column_name": "seq",
+          "filterable_ops": [],
+          "json_type": "integer",
+          "role": "attribute"
+        },
+        {
+          "code": "operation_code",
+          "column_name": "operation_code",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "string",
+          "role": "attribute"
+        },
+        {
+          "code": "site_id",
+          "column_name": "site_id",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "integer",
+          "role": "filter"
+        }
+      ],
+      "catalog_type_name": null,
+      "code": "routing",
+      "content_hash": "98755876ad694aa6e93088e40d65be8a5f5bdebb4347743cb8a91574c530c315",
+      "description": "Part revision routing with ordered operations and work centers.",
+      "display_name": "Routing",
+      "meta_class_id": null,
+      "meta_class_name": null,
+      "namespace": "mfg",
+      "row_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "operation_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Operation Code"
+          },
+          "part_number": {
+            "title": "Part Number",
+            "type": "string"
+          },
+          "part_revision": {
+            "title": "Part Revision",
+            "type": "string"
+          },
+          "part_revision_id": {
+            "title": "Part Revision Id",
+            "type": "integer"
+          },
+          "revision_label": {
+            "title": "Revision Label",
+            "type": "string"
+          },
+          "routing_id": {
+            "title": "Routing Id",
+            "type": "integer"
+          },
+          "routing_operation_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Routing Operation Id"
+          },
+          "seq": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Seq"
+          },
+          "site_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Site Id"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "work_center_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Work Center Code"
+          },
+          "work_center_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Work Center Id"
+          }
+        },
+        "required": [
+          "routing_id",
+          "part_revision_id",
+          "part_number",
+          "part_revision",
+          "status",
+          "revision_label"
+        ],
+        "title": "RoutingRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_routing_row",
+      "schema_id": "goliath.semantic/mfg/routing/1",
+      "schema_version": "1",
+      "storage_relation": "fac_eng.v_routing"
+    },
+    "mfg.traveler_step": {
+      "attributes": [
+        {
+          "code": "traveler_step_id",
+          "column_name": "traveler_step_id",
+          "filterable_ops": [],
+          "json_type": "integer",
+          "role": "key"
+        },
+        {
+          "code": "work_order_id",
+          "column_name": "work_order_id",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "integer",
+          "role": "filter"
+        },
+        {
+          "code": "seq",
+          "column_name": "seq",
+          "filterable_ops": [],
+          "json_type": "integer",
+          "role": "attribute"
+        },
+        {
+          "code": "operation_code",
+          "column_name": "operation_code",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "string",
+          "role": "attribute"
+        },
+        {
+          "code": "status",
+          "column_name": "status",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "string",
+          "role": "attribute"
+        },
+        {
+          "code": "site_id",
+          "column_name": "site_id",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "integer",
+          "role": "filter"
+        }
+      ],
+      "catalog_type_name": null,
+      "code": "traveler_step",
+      "content_hash": "d446a952b453ea7683569fc15382af4ab8894b99ef2855ef4909e162c51f3087",
+      "description": "Signed operation step on a work-order traveler.",
+      "display_name": "Traveler step",
+      "meta_class_id": null,
+      "meta_class_name": null,
+      "namespace": "mfg",
+      "row_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "machine": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Machine"
+          },
+          "operation_code": {
+            "title": "Operation Code",
+            "type": "string"
+          },
+          "operator_user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Operator User Id"
+          },
+          "qty_good": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Qty Good"
+          },
+          "qty_scrap": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Qty Scrap"
+          },
+          "routing_operation_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Routing Operation Id"
+          },
+          "seq": {
+            "title": "Seq",
+            "type": "integer"
+          },
+          "signed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Signed At"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "traveler_id": {
+            "title": "Traveler Id",
+            "type": "integer"
+          },
+          "traveler_step_id": {
+            "title": "Traveler Step Id",
+            "type": "integer"
+          },
+          "work_order_id": {
+            "title": "Work Order Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "traveler_step_id",
+          "work_order_id",
+          "traveler_id",
+          "seq",
+          "operation_code",
+          "status",
+          "site_id"
+        ],
+        "title": "TravelerStepRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_traveler_step_row",
+      "schema_id": "goliath.semantic/mfg/traveler_step/1",
+      "schema_version": "1",
+      "storage_relation": "fac_prod.v_traveler_step"
+    },
+    "mfg.work_order": {
+      "attributes": [
+        {
+          "code": "work_order_id",
+          "column_name": "work_order_id",
+          "filterable_ops": [],
+          "json_type": "integer",
+          "role": "key"
+        },
+        {
+          "code": "site_id",
+          "column_name": "site_id",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "integer",
+          "role": "filter"
+        },
+        {
+          "code": "part_number",
+          "column_name": "part_number",
+          "filterable_ops": [
+            "eq",
+            "ilike"
+          ],
+          "json_type": "string",
+          "role": "label"
+        },
+        {
+          "code": "status",
+          "column_name": "status",
+          "filterable_ops": [
+            "eq",
+            "in"
+          ],
+          "json_type": "string",
+          "role": "attribute"
+        },
+        {
+          "code": "due_date",
+          "column_name": "due_date",
+          "filterable_ops": [
+            "lte",
+            "gte"
+          ],
+          "json_type": "date",
+          "role": "attribute"
+        }
+      ],
+      "catalog_type_name": null,
+      "code": "work_order",
+      "content_hash": "a0acc77a46ab4c4c97388cd4a6b054ee9aab51d876a419e4f23375ff23ff97a8",
+      "description": "A released or planned production order with its traveler.",
+      "display_name": "Work order",
+      "meta_class_id": null,
+      "meta_class_name": null,
+      "namespace": "mfg",
+      "row_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "due_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Due Date"
+          },
+          "output_lot_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Output Lot Id"
+          },
+          "part_number": {
+            "title": "Part Number",
+            "type": "string"
+          },
+          "part_revision": {
+            "title": "Part Revision",
+            "type": "string"
+          },
+          "part_revision_id": {
+            "title": "Part Revision Id",
+            "type": "integer"
+          },
+          "quantity": {
+            "title": "Quantity",
+            "type": "number"
+          },
+          "routing_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Routing Id"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "work_order_id": {
+            "title": "Work Order Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "work_order_id",
+          "site_id",
+          "part_number",
+          "part_revision",
+          "part_revision_id",
+          "quantity",
+          "status"
+        ],
+        "title": "WorkOrderRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_work_order_row",
+      "schema_id": "goliath.semantic/mfg/work_order/1",
+      "schema_version": "1",
+      "storage_relation": "fac_prod.v_work_order"
+    }
+  },
+  "requests": {
+    "mfg.lot.genealogy": {
+      "base_namespace": null,
+      "content_hash": "c382a9e292e463c110b77ced6870a949bd35665bffa2ad3551f8c701d6e990ba",
+      "entity_code": "lot",
+      "filter_template": null,
+      "max_rows": 500,
+      "namespace": "mfg",
+      "params_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "direction": {
+            "default": "forward",
+            "enum": [
+              "forward",
+              "backward"
+            ],
+            "title": "Direction",
+            "type": "string"
+          },
+          "lot_id": {
+            "title": "Lot Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "lot_id"
+        ],
+        "title": "LotGenealogyParams",
+        "type": "object"
+      },
+      "request_code": "mfg.lot.genealogy",
+      "required_permission": "mfg.trace.read",
+      "result_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "depth": {
+            "title": "Depth",
+            "type": "integer"
+          },
+          "direction": {
+            "title": "Direction",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "link_kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Link Kind"
+          },
+          "lot_id": {
+            "title": "Lot Id",
+            "type": "integer"
+          },
+          "lot_number": {
+            "title": "Lot Number",
+            "type": "string"
+          },
+          "related_lot_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Related Lot Id"
+          },
+          "related_lot_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Related Lot Number"
+          }
+        },
+        "required": [
+          "lot_id",
+          "lot_number",
+          "kind",
+          "depth",
+          "direction"
+        ],
+        "title": "GenealogyRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_genealogy_row",
+      "schema_id": "goliath.semantic/mfg/mfg.lot.genealogy/1",
+      "target_kind": "function",
+      "target_name": "fac_trace.fn_semantic_lot_genealogy",
+      "version": "1"
+    },
+    "mfg.traveler_step.by_work_order": {
+      "base_namespace": null,
+      "content_hash": "f538ca30f7468ccd0fbd52d63aba308863bab232fa2e1d292edcf80badd29527",
+      "entity_code": "traveler_step",
+      "filter_template": null,
+      "max_rows": 500,
+      "namespace": "mfg",
+      "params_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "work_order_id": {
+            "title": "Work Order Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "work_order_id"
+        ],
+        "title": "TravelerStepByWorkOrderParams",
+        "type": "object"
+      },
+      "request_code": "mfg.traveler_step.by_work_order",
+      "required_permission": "mfg.traveler.read",
+      "result_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "machine": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Machine"
+          },
+          "operation_code": {
+            "title": "Operation Code",
+            "type": "string"
+          },
+          "operator_user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Operator User Id"
+          },
+          "qty_good": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Qty Good"
+          },
+          "qty_scrap": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Qty Scrap"
+          },
+          "routing_operation_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Routing Operation Id"
+          },
+          "seq": {
+            "title": "Seq",
+            "type": "integer"
+          },
+          "signed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Signed At"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "traveler_id": {
+            "title": "Traveler Id",
+            "type": "integer"
+          },
+          "traveler_step_id": {
+            "title": "Traveler Step Id",
+            "type": "integer"
+          },
+          "work_order_id": {
+            "title": "Work Order Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "traveler_step_id",
+          "work_order_id",
+          "traveler_id",
+          "seq",
+          "operation_code",
+          "status",
+          "site_id"
+        ],
+        "title": "TravelerStepRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_traveler_step_row",
+      "schema_id": "goliath.semantic/mfg/mfg.traveler_step.by_work_order/1",
+      "target_kind": "function",
+      "target_name": "fac_prod.fn_semantic_traveler_step_by_work_order",
+      "version": "1"
+    },
+    "mfg.work_order.list_open": {
+      "base_namespace": null,
+      "content_hash": "2e2fce14a664d73eda159d85c3052bfacb822bfa5ca872e3d93bfa7a6113dd24",
+      "entity_code": "work_order",
+      "filter_template": null,
+      "max_rows": 500,
+      "namespace": "mfg",
+      "params_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "due_before": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Due Before"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          }
+        },
+        "required": [
+          "site_id"
+        ],
+        "title": "WorkOrderListParams",
+        "type": "object"
+      },
+      "request_code": "mfg.work_order.list_open",
+      "required_permission": "mfg.work_order.read",
+      "result_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "due_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Due Date"
+          },
+          "output_lot_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Output Lot Id"
+          },
+          "part_number": {
+            "title": "Part Number",
+            "type": "string"
+          },
+          "part_revision": {
+            "title": "Part Revision",
+            "type": "string"
+          },
+          "part_revision_id": {
+            "title": "Part Revision Id",
+            "type": "integer"
+          },
+          "quantity": {
+            "title": "Quantity",
+            "type": "number"
+          },
+          "routing_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Routing Id"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "work_order_id": {
+            "title": "Work Order Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "work_order_id",
+          "site_id",
+          "part_number",
+          "part_revision",
+          "part_revision_id",
+          "quantity",
+          "status"
+        ],
+        "title": "WorkOrderRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_work_order_row",
+      "schema_id": "goliath.semantic/mfg/mfg.work_order.list_open/1",
+      "target_kind": "function",
+      "target_name": "fac_prod.fn_semantic_work_order_list_open",
+      "version": "1"
+    }
+  }
+}

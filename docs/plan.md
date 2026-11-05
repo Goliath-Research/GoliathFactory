@@ -44,7 +44,7 @@ The name is GoliathFactory: every factory includes QC, so quality is part of it,
 | Workers | Claim through goliath-gateway only; Postgres pub/sub wakes event tasks |
 | Storage | Documents, photos, certs on S3-compatible storage; references in Postgres |
 | Defaults | Free tools first, CPU-only workers (as GoliathCrop) |
-| Status | planned |
+| Status | Phase 1 in development (core schemas and `mfg` semantic layer in [GoliathFactory](https://github.com/Goliath-Research/GoliathFactory)) |
 
 ## Users and roles
 
