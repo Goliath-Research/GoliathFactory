@@ -21,17 +21,17 @@ Scripts under `database/schema/` are idempotent (`CREATE IF NOT EXISTS`, `CREATE
 | Schema | Purpose |
 | --- | --- |
 | `fac_eng` | Sites, parts, part revisions, routings, routing operations, work centers |
-| `fac_prod` | Work orders, travelers, traveler steps |
-| `fac_qual` | Inspection, NCR, CAPA, first article |
+| `fac_prod` | Work orders, travelers, traveler steps, offline outbox |
+| `fac_qual` | Inspection, NCR, CAPA, first article, SPC/CMM batches |
 | `fac_gauge` | Gauges and calibrations |
 | `fac_doc` | Controlled documents and revision workflow stubs |
-| `fac_trace` | Lots, genealogy, certificates of conformance |
+| `fac_trace` | Lots, genealogy, CoC, FSMA CTE/KDE events and export audit |
 | `fac_audit` | Append-only `audit_log`; e-sign columns on traveler steps |
 | `fac_mfg_inv` | `inv` receive/issue wrappers + stock-lot → trace-lot map |
-| `fac_maint` | Assets, PM schedules, maintenance orders, downtime |
+| `fac_maint` | Assets, PM schedules, maintenance orders, downtime, machine observations |
 | `fac_wf` | DomainProgram task queue and capability NOTIFY wakes |
 | `fac_inv_hooks` | Legacy Phase 2 stubs (superseded by `fac_mfg_inv`) |
 
-Phase 3 adds `11`–`18`; Phase 4 adds `19`–`22` (maintenance, workflow wakes, PM/SPC/CMM APIs and semantic reads). Semantic **views** (`v_*`) back `storage_relation` on entities. Named reads use **functions** scoped to the session user (organization membership and site).
+Phase 3 adds `11`–`18`; Phase 4 adds `19`–`22`; Phase 5 adds `23`–`26` (FSMA trace, offline queue, machine ingest, APIs). Semantic **views** (`v_*`) back `storage_relation` on entities. Named reads use **functions** scoped to the session user (organization membership and site).
 
 **Inventory:** item master, stock, and purchasing live in the GoliathApp `inv` module (built in parallel). GoliathFactory does not define an `inv` schema here; enable inventory NavTree nodes from the platform module when deployed.

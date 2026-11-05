@@ -98,6 +98,9 @@ BEGIN
     v_root_id, 'Traceability', 30, 'mfg_traceability', 'mfg.lot.genealogy'
   );
   PERFORM fac_eng.sp_register_mfg_nav_child(
+    v_root_id, 'FSMA trace (204)', 31, 'mfg_fsma_trace', 'mfg.fsma.cte_in_window'
+  );
+  PERFORM fac_eng.sp_register_mfg_nav_child(
     v_root_id, 'Inventory & purchasing', 35, 'mfg_inv', 'inv.item.list'
   );
   PERFORM fac_eng.sp_register_mfg_nav_child(

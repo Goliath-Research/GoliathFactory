@@ -341,3 +341,38 @@ class SpcSeriesParams(BaseModel):
 
     characteristic_id: int
     chart_type: Literal["xbar_r", "imr"] = "xbar_r"
+
+
+class FsmaCteRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    cte_event_id: int
+    site_id: int
+    cte_type: str
+    event_at: datetime
+    lot_id: Optional[int] = None
+    lot_number: Optional[str] = None
+    traceability_lot_code: str
+    product_description: str
+    quantity: Optional[float] = None
+    quantity_uom: Optional[str] = None
+    location_code: Optional[str] = None
+    reference_doc_type: Optional[str] = None
+    reference_doc_number: Optional[str] = None
+    genealogy_link_id: Optional[int] = None
+    recorded_by_user_id: Optional[int] = None
+    recorded_at: Optional[datetime] = None
+    source: str
+
+
+class FsmaCteByLotParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    lot_id: int
+
+
+class FsmaCteInWindowParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    site_id: int
+    hours: int = 24

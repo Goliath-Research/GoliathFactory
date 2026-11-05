@@ -3,7 +3,7 @@
   "id": "goliathfactory",
   "name": "GoliathFactory",
   "tagline": "Manufacturing operations on GoliathApp: travelers, QC, lot genealogy, NCR/CAPA, inventory, and maintenance.",
-  "description": "GoliathFactory specializes GoliathApp for 10–50 person manufacturers. Phase 4 adds maintenance assets and PMs, downtime, SPC charts, and CMM import stubs with DomainPrograms. Phase 3 (CAPA, gauges, documents, FAI, CoC, inv integration) and Phase 2 pilot v1 are on main.",
+  "description": "GoliathFactory specializes GoliathApp for 10–50 person manufacturers. Phase 5 adds the food-processor profile (FSMA 204 CTE/KDE on genealogy, 24-hour CSV export), offline tablet outbox sync, and MTConnect/OPC UA machine monitoring stubs. Phases 1–4 (core data through maintenance/SPC) are complete. Deploy profile: `.goliath/factory-config.json`.",
   "category": "application",
   "features": [
     {
@@ -15,12 +15,20 @@
       "description": "Forward and backward trace from material heat lots to shipments, with nonconformance, MRB disposition and CAPA workflows."
     },
     {
+      "title": "FSMA 204 traceability",
+      "description": "Food-processor profile: Critical Tracking Events and Key Data Elements on lot genealogy, with sortable 24-hour audit export."
+    },
+    {
       "title": "Inventory and purchasing",
       "description": "Item master, supplier items and price breaks, approved suppliers, stock by bin and lot, receiving with incoming inspection (GoliathApp `inv` module)."
     },
     {
-      "title": "Maintenance and SPC",
-      "description": "Asset PM schedules, signed PM completion, downtime logging, X-bar/R and I-MR control charts with Western Electric rules, and CMM CSV import."
+      "title": "Maintenance, SPC, and machines",
+      "description": "Asset PM schedules, downtime, SPC control charts, CMM import stub, and MTConnect/OPC UA observation adapters."
+    },
+    {
+      "title": "Offline shop floor",
+      "description": "Idempotent offline queue for traveler and inspection submissions with sync and conflict marking."
     },
     {
       "title": "Audit trail and e-signatures",
@@ -35,5 +43,5 @@
   "related": ["goliathapp", "goliathcrop"],
   "dependsOn": ["goliathapp"],
   "license": "MIT",
-  "status": "in_development"
+  "status": "stable"
 }

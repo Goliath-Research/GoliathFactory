@@ -5,6 +5,7 @@
 --   mfg.work_order.read, mfg.work_order.release
 --   mfg.traveler.read, mfg.traveler.sign
 --   mfg.trace.read, mfg.trace.write
+--   mfg.fsma.read, mfg.fsma.write (food-processor profile / FSMA 204 CTE export)
 --   mfg.quality.read, mfg.quality.inspect, mfg.quality.mrb, mfg.quality.approve
 --   mfg.gauge.read
 --   mfg.maint.read, mfg.maint.write

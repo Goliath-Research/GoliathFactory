@@ -10,4 +10,4 @@
 | CMM import stub | Done | `mfg.cmm.register_upload`, worker parser; gaps in [`cmm-import.md`](cmm-import.md) |
 | DomainPrograms doc | Done | [`domain_programs/README.md`](../domain_programs/README.md) |
 
-Phase 5: second customer profile, offline tablets, MTConnect/OPC UA.
+Phase 5: FSMA food profile, offline tablets, MTConnect/OPC UA — see [`phase5-status.md`](phase5-status.md).
