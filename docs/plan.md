@@ -44,7 +44,7 @@ The name is GoliathFactory: every factory includes QC, so quality is part of it,
 | Workers | Claim through goliath-gateway only; Postgres pub/sub wakes event tasks |
 | Storage | Documents, photos, certs on S3-compatible storage; references in Postgres |
 | Defaults | Free tools first, CPU-only workers (as GoliathCrop) |
-| Status | Phase 2 pilot v1 in development — tablet portal views, `fac_qual`, NCR, domain audit log, inv hooks; product remains `in_development` |
+| Status | Phase 4 maintenance and SPC in development — assets, PMs, downtime, SPC charts, CMM import stub; Phase 3 quality/purchasing on `main` |
 
 ## Users and roles
 

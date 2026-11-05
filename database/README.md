@@ -28,8 +28,10 @@ Scripts under `database/schema/` are idempotent (`CREATE IF NOT EXISTS`, `CREATE
 | `fac_trace` | Lots, genealogy, certificates of conformance |
 | `fac_audit` | Append-only `audit_log`; e-sign columns on traveler steps |
 | `fac_mfg_inv` | `inv` receive/issue wrappers + stock-lot → trace-lot map |
+| `fac_maint` | Assets, PM schedules, maintenance orders, downtime |
+| `fac_wf` | DomainProgram task queue and capability NOTIFY wakes |
 | `fac_inv_hooks` | Legacy Phase 2 stubs (superseded by `fac_mfg_inv`) |
 
-Phase 3 adds `11`–`17` schema scripts (CAPA, gauge, doc, FAI, CoC, APIs, semantic reads). Semantic **views** (`v_*`) back `storage_relation` on entities. Named reads use **functions** scoped to the session user (organization membership and site).
+Phase 3 adds `11`–`18`; Phase 4 adds `19`–`22` (maintenance, workflow wakes, PM/SPC/CMM APIs and semantic reads). Semantic **views** (`v_*`) back `storage_relation` on entities. Named reads use **functions** scoped to the session user (organization membership and site).
 
 **Inventory:** item master, stock, and purchasing live in the GoliathApp `inv` module (built in parallel). GoliathFactory does not define an `inv` schema here; enable inventory NavTree nodes from the platform module when deployed.

@@ -15,6 +15,8 @@ NAV_SPEC = (
     ("First article (FAI)", "Quality", 30, "mfg_fai", "mfg.fai.by_work_order"),
     ("Document control", "Quality", 40, "mfg_documents", "mfg.document.list"),
     ("Gauges", "Factory", 28, "mfg_gauges", "mfg.gauge.due_calibration"),
+    ("Maintenance", "Factory", 29, "mfg_maintenance", "mfg.asset.pm_due"),
+    ("SPC", "Quality", 35, "mfg_spc", "mfg.spc.series"),
     ("Traceability", "Factory", 30, "mfg_traceability", "mfg.lot.genealogy"),
     ("Inventory & purchasing", "Factory", 35, "mfg_inv", "inv.item.list"),
     ("Receiving", "Factory", 36, "mfg_receiving", "inv.stock.receive"),

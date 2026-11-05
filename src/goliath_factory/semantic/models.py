@@ -295,3 +295,49 @@ class FirstArticleByWorkOrderParams(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     work_order_id: int
+
+
+class AssetRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    asset_id: int
+    site_id: int
+    asset_tag: str
+    description: Optional[str] = None
+    work_center_code: Optional[str] = None
+    pm_schedule_name: Optional[str] = None
+    next_due_on: Optional[date] = None
+    interval_days: Optional[int] = None
+    downtime_hours_30d: Optional[float] = None
+    status: str
+
+
+class AssetPmDueParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    site_id: int
+    within_days: int = 30
+
+
+class SpcSeriesRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    characteristic_id: int
+    characteristic_code: str
+    site_id: int
+    chart_type: str
+    point_index: int
+    subgroup_label: Optional[str] = None
+    primary_value: float
+    secondary_value: Optional[float] = None
+    center_line: Optional[float] = None
+    ucl: Optional[float] = None
+    lcl: Optional[float] = None
+    rule_violations: Optional[str] = None
+
+
+class SpcSeriesParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    characteristic_id: int
+    chart_type: Literal["xbar_r", "imr"] = "xbar_r"

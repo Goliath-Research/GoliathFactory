@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import date
+from datetime import date, datetime
 from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -228,3 +228,99 @@ class FaiApproveOutput(BaseModel):
 
     first_article_id: int
     status: str
+
+
+class AssetPmCompleteInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    maintenance_order_id: int
+    signature_meaning: str = Field(default="Preventive maintenance completed")
+    record_hash: str
+    checklist: dict[str, bool] | None = None
+
+
+class AssetPmCompleteOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    maintenance_order_id: int
+    next_due_on: date | None = None
+
+
+class DowntimeLogInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    site_id: int
+    asset_id: int | None = None
+    work_center_id: int | None = None
+    started_at: datetime
+    ended_at: datetime | None = None
+    reason_code: str
+    comments: str | None = None
+
+
+class DowntimeLogOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    downtime_event_id: int
+
+
+class CmmRegisterUploadInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    site_id: int
+    source_filename: str
+    format: str = "csv"
+    storage_ref: str | None = None
+
+
+class CmmRegisterUploadOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    batch_id: int
+    status: str = "pending"
+
+
+class MaintPmDueScanInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    site_id: int
+    within_days: int = 7
+
+
+class MaintPmDueScanOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    site_id: int
+    due_asset_count: int
+
+
+class SpcSummarizeInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    characteristic_id: int
+    chart_type: str = "xbar_r"
+    subgroup_size: int = 5
+
+
+class SpcSummarizeOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    characteristic_id: int
+    points_written: int
+
+
+class CmmImportFileInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    batch_id: int
+    site_id: int
+    source_filename: str
+    format: str = "csv"
+    storage_ref: str | None = None
+
+
+class CmmImportFileOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    batch_id: int
+    rows_inserted: int

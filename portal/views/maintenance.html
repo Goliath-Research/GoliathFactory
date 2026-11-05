@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Factory · Maintenance</title>
+    <link rel="stylesheet" href="../static/mfg-shell.css" />
+  </head>
+  <body>
+    <h1>Preventive maintenance due</h1>
+    <p>Assets with PM schedules due within the selected window.</p>
+    <ul class="mfg-list" id="assetList"></ul>
+    <p class="mfg-status" id="status"></p>
+    <script src="../static/mfg-api.js"></script>
+    <script>
+      const status = document.getElementById("status");
+      const assetList = document.getElementById("assetList");
+
+      MfgPortal.runSemanticRequest("mfg.asset.pm_due", {
+        site_id: MfgPortal.siteId(),
+        within_days: 30,
+      })
+        .then((rows) => {
+          if (!rows.length) {
+            MfgPortal.setStatus(status, "No PM due in window.");
+            return;
+          }
+          assetList.innerHTML = rows
+            .map(
+              (a) =>
+                `<li><strong>${a.asset_tag}</strong> ${a.description || ""} — due ${a.next_due_on} ` +
+                `(WC ${a.work_center_code || "—"}, downtime 30d: ${Number(a.downtime_hours_30d || 0).toFixed(1)} h)</li>`
+            )
+            .join("");
+        })
+        .catch((err) => MfgPortal.setStatus(status, err.message, true));
+    </script>
+  </body>
+</html>

@@ -3,7 +3,7 @@
   "id": "goliathfactory",
   "name": "GoliathFactory",
   "tagline": "Manufacturing operations on GoliathApp: travelers, QC, lot genealogy, NCR/CAPA, inventory, and maintenance.",
-  "description": "GoliathFactory specializes GoliathApp for 10–50 person manufacturers. Phase 3 adds CAPA, gauge calibration, document control, AS9102 first article, CoC export, accounting adapter stubs, and inv integration (overrides on GoliathApp main 1a0fe26) via fac_mfg_inv. Phase 2 (pilot v1) delivers tablet portal views, fac_qual, and typed actions. Phase 1 delivers core production and trace schemas plus the mfg semantic namespace.",
+  "description": "GoliathFactory specializes GoliathApp for 10–50 person manufacturers. Phase 4 adds maintenance assets and PMs, downtime, SPC charts, and CMM import stubs with DomainPrograms. Phase 3 (CAPA, gauges, documents, FAI, CoC, inv integration) and Phase 2 pilot v1 are on main.",
   "category": "application",
   "features": [
     {
@@ -17,6 +17,10 @@
     {
       "title": "Inventory and purchasing",
       "description": "Item master, supplier items and price breaks, approved suppliers, stock by bin and lot, receiving with incoming inspection (GoliathApp `inv` module)."
+    },
+    {
+      "title": "Maintenance and SPC",
+      "description": "Asset PM schedules, signed PM completion, downtime logging, X-bar/R and I-MR control charts with Western Electric rules, and CMM CSV import."
     },
     {
       "title": "Audit trail and e-signatures",

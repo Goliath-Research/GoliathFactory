@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Factory · SPC</title>
+    <link rel="stylesheet" href="../static/mfg-shell.css" />
+    <style>
+      #chartWrap {
+        overflow-x: auto;
+        margin-top: 1rem;
+      }
+      canvas {
+        max-width: 100%;
+        border: 1px solid #ccc;
+        background: #fff;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>SPC control chart</h1>
+    <p>X-bar/R and I-MR series from summarized inspection results (`mfg.spc.series`).</p>
+    <label>
+      Characteristic ID
+      <input id="charId" type="number" value="1" min="1" />
+    </label>
+    <label>
+      Chart
+      <select id="chartType">
+        <option value="xbar_r">X-bar / R</option>
+        <option value="imr">I-MR</option>
+      </select>
+    </label>
+    <button type="button" id="loadBtn">Load</button>
+    <div id="chartWrap"><canvas id="chart" width="720" height="280"></canvas></div>
+    <ul class="mfg-list" id="violations"></ul>
+    <p class="mfg-status" id="status"></p>
+    <script src="../static/mfg-api.js"></script>
+    <script>
+      const status = document.getElementById("status");
+      const canvas = document.getElementById("chart");
+      const ctx = canvas.getContext("2d");
+      const violations = document.getElementById("violations");
+
+      function drawChart(rows) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (!rows.length) return;
+        const pad = 40;
+        const w = canvas.width - pad * 2;
+        const h = canvas.height - pad * 2;
+        const vals = rows.map((r) => Number(r.primary_value));
+        const ucl = Number(rows[0].ucl);
+        const lcl = Number(rows[0].lcl);
+        const cl = Number(rows[0].center_line);
+        const minY = Math.min(lcl, ...vals);
+        const maxY = Math.max(ucl, ...vals);
+        const span = maxY - minY || 1;
+        const scaleY = (v) => pad + h - ((v - minY) / span) * h;
+        const scaleX = (i) => pad + (i / Math.max(rows.length - 1, 1)) * w;
+        ctx.strokeStyle = "#999";
+        [ucl, cl, lcl].forEach((line) => {
+          ctx.beginPath();
+          ctx.moveTo(pad, scaleY(line));
+          ctx.lineTo(pad + w, scaleY(line));
+          ctx.stroke();
+        });
+        ctx.strokeStyle = "#036";
+        ctx.beginPath();
+        rows.forEach((r, i) => {
+          const x = scaleX(i);
+          const y = scaleY(Number(r.primary_value));
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+      }
+
+      function load() {
+        const characteristic_id = Number(document.getElementById("charId").value);
+        const chart_type = document.getElementById("chartType").value;
+        MfgPortal.runSemanticRequest("mfg.spc.series", { characteristic_id, chart_type })
+          .then((rows) => {
+            drawChart(rows);
+            const flagged = rows.filter((r) => r.rule_violations);
+            violations.innerHTML = flagged
+              .map(
+                (r) =>
+                  `<li>Point ${r.point_index}: ${r.rule_violations} (value ${r.primary_value})</li>`
+              )
+              .join("");
+            MfgPortal.setStatus(status, `${rows.length} points loaded.`);
+          })
+          .catch((err) => MfgPortal.setStatus(status, err.message, true));
+      }
+
+      document.getElementById("loadBtn").addEventListener("click", load);
+      load();
+    </script>
+  </body>
+</html>
