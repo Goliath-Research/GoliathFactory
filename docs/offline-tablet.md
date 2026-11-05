@@ -28,4 +28,6 @@ NCR, disposition, and e-signature-heavy steps require live re-authentication and
 | Queue retention | 7 days (operational cleanup not automated in v1) |
 | Conflict handling | Row stays `conflict`; operator must reconcile on tablet |
 
+Domain permissions for queued actions use `portal.fn_semantic_session_has_permission` (same RBAC join as `portal.sp_run_semantic_request`), enforced in Python handlers and in `fac_prod.sp_offline_enqueue` for defense in depth.
+
 Storage: `fac_prod.offline_outbox` with unique `(site_id, client_device_id, idempotency_key)`.

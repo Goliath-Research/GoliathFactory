@@ -680,13 +680,13 @@ def handle_offline_enqueue(
     model = OfflineEnqueueInput.model_validate(payload)
     if model.action_name not in ALLOWED_OFFLINE_ACTIONS:
         raise ValueError(f"action not allowed offline: {model.action_name}")
-    assert_offline_domain_permission(model.action_name, context=context)
     encoded = json.dumps(model.payload, separators=(",", ":"), sort_keys=True)
     if len(encoded.encode("utf-8")) > MAX_PAYLOAD_BYTES:
         raise ValueError("offline payload exceeds size limit")
     user_id = _require_db_user(context)
     with connect() as conn:
         with conn.cursor() as cur:
+            assert_offline_domain_permission(model.action_name, context=context, cur=cur)
             cur.execute(
                 """
                 SELECT outbox_id, status

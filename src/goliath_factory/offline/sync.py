@@ -23,7 +23,7 @@ def apply_offline_submission(
 ) -> dict[str, Any]:
     if action_name not in ALLOWED_OFFLINE_ACTIONS:
         raise ValueError(f"action not allowed offline: {action_name}")
-    assert_offline_domain_permission(action_name, context=context)
+    assert_offline_domain_permission(action_name, context=context, cur=cur)
 
     if cur is not None:
         user_id = user_id_from_context(context)
