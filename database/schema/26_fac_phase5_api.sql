@@ -147,6 +147,17 @@ BEGIN
 END;
 $$;
 
+CREATE OR REPLACE FUNCTION fac_trace.fn_csv_field(p_value text)
+RETURNS text
+LANGUAGE sql
+IMMUTABLE
+AS $$
+  SELECT CASE
+    WHEN p_value IS NULL THEN ''
+    ELSE '"' || replace(replace(p_value, '"', '""'), E'\n', ' ') || '"'
+  END;
+$$;
+
 CREATE OR REPLACE FUNCTION fac_trace.sp_fsma_export_traceability_csv(
   p_user_id integer,
   p_site_id integer,
@@ -174,18 +185,18 @@ BEGIN
   SELECT string_agg(
     format(
       '%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s',
-      to_char(v.event_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"'),
-      v.cte_type,
-      COALESCE(replace(v.traceability_lot_code, ',', ' '), ''),
-      COALESCE(replace(v.product_description, ',', ' '), ''),
-      COALESCE(v.quantity::text, ''),
-      COALESCE(replace(v.quantity_uom, ',', ' '), ''),
-      COALESCE(replace(v.location_code, ',', ' '), ''),
-      COALESCE(replace(v.reference_doc_type, ',', ' '), ''),
-      COALESCE(replace(v.reference_doc_number, ',', ' '), ''),
-      COALESCE(v.lot_number, ''),
-      COALESCE(v.lot_id::text, ''),
-      COALESCE(replace(v.source, ',', ' '), '')
+      fac_trace.fn_csv_field(to_char(v.event_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS"Z"')),
+      fac_trace.fn_csv_field(v.cte_type),
+      fac_trace.fn_csv_field(v.traceability_lot_code),
+      fac_trace.fn_csv_field(v.product_description),
+      fac_trace.fn_csv_field(v.quantity::text),
+      fac_trace.fn_csv_field(v.quantity_uom),
+      fac_trace.fn_csv_field(v.location_code),
+      fac_trace.fn_csv_field(v.reference_doc_type),
+      fac_trace.fn_csv_field(v.reference_doc_number),
+      fac_trace.fn_csv_field(v.lot_number),
+      fac_trace.fn_csv_field(v.lot_id::text),
+      fac_trace.fn_csv_field(v.source)
     ),
     E'\n'
     ORDER BY v.event_at ASC, v.cte_event_id ASC
@@ -228,7 +239,7 @@ CREATE OR REPLACE FUNCTION fac_prod.sp_offline_enqueue(
   p_payload_json jsonb,
   p_captured_at timestamptz DEFAULT NULL
 )
-RETURNS bigint
+RETURNS TABLE (outbox_id bigint, status text)
 LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = fac_prod, fac_eng, portal, pg_temp
@@ -236,6 +247,7 @@ AS $$
 DECLARE
   v_id bigint;
   v_pending integer;
+  v_status text;
 BEGIN
   IF p_user_id IS NULL THEN
     PERFORM portal.fn_semantic_raise('GS401', 'user required');
@@ -245,6 +257,13 @@ BEGIN
   END IF;
   IF length(p_client_device_id) < 3 OR length(p_idempotency_key) < 8 THEN
     PERFORM portal.fn_semantic_raise('GS400', 'device id or idempotency key too short');
+  END IF;
+  IF p_action_name NOT IN (
+    'mfg.traveler_step.start',
+    'mfg.traveler_step.sign_off',
+    'mfg.inspection_result.record'
+  ) THEN
+    PERFORM portal.fn_semantic_raise('GS400', 'action not allowed offline');
   END IF;
   PERFORM set_config('goliath.mfg.user_id', p_user_id::text, true);
 
@@ -277,8 +296,12 @@ BEGIN
   )
   ON CONFLICT (site_id, client_device_id, idempotency_key) DO UPDATE
     SET payload_json = EXCLUDED.payload_json,
-        captured_at = EXCLUDED.captured_at
-  WHERE fac_prod.offline_outbox.status = 'pending'
+        captured_at = EXCLUDED.captured_at,
+        status = 'pending',
+        synced_at = NULL,
+        server_result_json = NULL,
+        conflict_reason = NULL
+  WHERE fac_prod.offline_outbox.status IN ('pending', 'rejected', 'conflict')
   RETURNING id INTO v_id;
 
   IF v_id IS NULL THEN
@@ -288,7 +311,97 @@ BEGIN
       AND o.client_device_id = p_client_device_id
       AND o.idempotency_key = p_idempotency_key;
   END IF;
-  RETURN v_id;
+
+  SELECT o.status INTO v_status
+  FROM fac_prod.offline_outbox o
+  WHERE o.id = v_id;
+
+  RETURN QUERY SELECT v_id, v_status;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION fac_prod.sp_offline_claim_pending(
+  p_user_id integer,
+  p_site_id integer,
+  p_client_device_id text,
+  p_limit integer
+)
+RETURNS TABLE (
+  id bigint,
+  idempotency_key text,
+  action_name text,
+  payload_json jsonb,
+  status text
+)
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = fac_prod, fac_eng, portal, pg_temp
+AS $$
+DECLARE
+  v_limit integer;
+BEGIN
+  IF p_user_id IS NULL THEN
+    PERFORM portal.fn_semantic_raise('GS401', 'user required');
+  END IF;
+  IF p_site_id IS NULL OR NOT fac_eng.fn_user_can_access_site(p_user_id, p_site_id) THEN
+    PERFORM portal.fn_semantic_raise('GS403', 'site scope denied');
+  END IF;
+  PERFORM set_config('goliath.mfg.user_id', p_user_id::text, true);
+  v_limit := GREATEST(1, LEAST(COALESCE(p_limit, 25), 50));
+
+  RETURN QUERY
+  SELECT
+    o.id,
+    o.idempotency_key,
+    o.action_name,
+    o.payload_json,
+    o.status
+  FROM fac_prod.offline_outbox o
+  WHERE o.site_id = p_site_id
+    AND o.client_device_id = p_client_device_id
+    AND o.status = 'pending'
+  ORDER BY o.captured_at ASC
+  LIMIT v_limit
+  FOR UPDATE;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION fac_prod.sp_offline_finish_item(
+  p_user_id integer,
+  p_outbox_id bigint,
+  p_status text,
+  p_server_result_json jsonb DEFAULT NULL,
+  p_conflict_reason text DEFAULT NULL
+)
+RETURNS void
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = fac_prod, fac_eng, portal, pg_temp
+AS $$
+DECLARE
+  v_site_id integer;
+BEGIN
+  IF p_user_id IS NULL THEN
+    PERFORM portal.fn_semantic_raise('GS401', 'user required');
+  END IF;
+  IF p_status NOT IN ('synced', 'conflict', 'rejected') THEN
+    PERFORM portal.fn_semantic_raise('GS400', 'invalid offline outbox status');
+  END IF;
+  PERFORM set_config('goliath.mfg.user_id', p_user_id::text, true);
+
+  SELECT o.site_id INTO v_site_id
+  FROM fac_prod.offline_outbox o
+  WHERE o.id = p_outbox_id;
+  IF v_site_id IS NULL OR NOT fac_eng.fn_user_can_access_site(p_user_id, v_site_id) THEN
+    PERFORM portal.fn_semantic_raise('GS403', 'site scope denied');
+  END IF;
+
+  UPDATE fac_prod.offline_outbox o
+  SET status = p_status,
+      synced_at = now(),
+      server_result_json = p_server_result_json,
+      conflict_reason = p_conflict_reason
+  WHERE o.id = p_outbox_id;
 END;
 $$;
 
@@ -351,23 +464,33 @@ BEGIN
   RETURNING id INTO v_id;
 
   IF lower(COALESCE(p_availability, '')) IN ('unavailable', 'not_available', 'down') THEN
-    INSERT INTO fac_maint.downtime_events (
-      site_id,
-      asset_id,
-      started_at,
-      reason_code,
-      comments,
-      logged_by_user_id
-    )
-    VALUES (
-      p_site_id,
-      p_asset_id,
-      p_observed_at,
-      'machine_monitor',
-      format('auto from %s observation %s', p_source_protocol, v_id),
-      p_user_id
-    )
-    RETURNING id INTO v_downtime_id;
+    SELECT d.id INTO v_downtime_id
+    FROM fac_maint.downtime_events d
+    WHERE d.asset_id = p_asset_id
+      AND d.ended_at IS NULL
+    ORDER BY d.started_at DESC
+    LIMIT 1;
+
+    IF v_downtime_id IS NULL THEN
+      INSERT INTO fac_maint.downtime_events (
+        site_id,
+        asset_id,
+        started_at,
+        reason_code,
+        comments,
+        logged_by_user_id
+      )
+      VALUES (
+        p_site_id,
+        p_asset_id,
+        p_observed_at,
+        'machine_monitor',
+        format('auto from %s observation %s', p_source_protocol, v_id),
+        p_user_id
+      )
+      RETURNING id INTO v_downtime_id;
+    END IF;
+
     UPDATE fac_maint.machine_observations
     SET downtime_event_id = v_downtime_id
     WHERE id = v_id;

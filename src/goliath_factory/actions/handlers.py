@@ -55,6 +55,7 @@ from goliath_factory.actions.models import (
 from goliath_factory.inv.models import MfgIssueStockOutput, MfgReceiveStockInput, MfgReceiveStockOutput
 from goliath_factory.db import connect, libpq_configured, user_id_from_context
 from goliath_factory.offline import ALLOWED_OFFLINE_ACTIONS, MAX_PAYLOAD_BYTES
+from goliath_factory.offline.permissions import assert_offline_domain_permission
 from goliath_factory.offline.sync import apply_offline_submission
 
 
@@ -679,6 +680,7 @@ def handle_offline_enqueue(
     model = OfflineEnqueueInput.model_validate(payload)
     if model.action_name not in ALLOWED_OFFLINE_ACTIONS:
         raise ValueError(f"action not allowed offline: {model.action_name}")
+    assert_offline_domain_permission(model.action_name, context=context)
     encoded = json.dumps(model.payload, separators=(",", ":"), sort_keys=True)
     if len(encoded.encode("utf-8")) > MAX_PAYLOAD_BYTES:
         raise ValueError("offline payload exceeds size limit")
@@ -687,7 +689,8 @@ def handle_offline_enqueue(
         with conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT fac_prod.sp_offline_enqueue(
+                SELECT outbox_id, status
+                FROM fac_prod.sp_offline_enqueue(
                   %s, %s, %s, %s, %s, %s::jsonb, %s
                 )
                 """,
@@ -701,9 +704,9 @@ def handle_offline_enqueue(
                     model.captured_at,
                 ),
             )
-            outbox_id = int(_fetch_one(cur, "sp_offline_enqueue")[0])
+            outbox_id, status = _fetch_one(cur, "sp_offline_enqueue")
         conn.commit()
-    return OfflineEnqueueOutput(outbox_id=outbox_id).model_dump(mode="json")
+    return OfflineEnqueueOutput(outbox_id=int(outbox_id), status=str(status)).model_dump(mode="json")
 
 
 def handle_offline_sync(
@@ -717,20 +720,18 @@ def handle_offline_sync(
     results: list[OfflineSyncResultItem] = []
     synced = 0
     conflicts = 0
+    sync_context: dict[str, Any] = dict(context or {})
+    sync_context.setdefault("user_id", user_id)
     with connect() as conn:
         with conn.cursor() as cur:
             cur.execute(
                 """
                 SELECT id, idempotency_key, action_name, payload_json, status
-                FROM fac_prod.offline_outbox
-                WHERE site_id = %s
-                  AND client_device_id = %s
-                  AND status = 'pending'
-                ORDER BY captured_at ASC
-                LIMIT %s
-                FOR UPDATE
+                FROM fac_prod.sp_offline_claim_pending(
+                  %s, %s, %s, %s
+                )
                 """,
-                (model.site_id, model.client_device_id, max_batch),
+                (user_id, model.site_id, model.client_device_id, max_batch),
             )
             rows = cur.fetchall()
             for outbox_id, idem_key, action_name, payload_json, status in rows:
@@ -741,18 +742,16 @@ def handle_offline_sync(
                     result = apply_offline_submission(
                         str(action_name),
                         body,
-                        context={"user_id": user_id},
+                        context=sync_context,
+                        cur=cur,
                     )
                     cur.execute(
                         """
-                        UPDATE fac_prod.offline_outbox
-                        SET status = 'synced',
-                            synced_at = now(),
-                            server_result_json = %s::jsonb,
-                            conflict_reason = NULL
-                        WHERE id = %s
+                        SELECT fac_prod.sp_offline_finish_item(
+                          %s, %s, 'synced', %s::jsonb, NULL
+                        )
                         """,
-                        (json.dumps(result), outbox_id),
+                        (user_id, outbox_id, json.dumps(result)),
                     )
                     synced += 1
                     results.append(
@@ -770,13 +769,11 @@ def handle_offline_sync(
                         conflicts += 1
                     cur.execute(
                         """
-                        UPDATE fac_prod.offline_outbox
-                        SET status = %s,
-                            synced_at = now(),
-                            conflict_reason = %s
-                        WHERE id = %s
+                        SELECT fac_prod.sp_offline_finish_item(
+                          %s, %s, %s, NULL, %s
+                        )
                         """,
-                        (new_status, message[:500], outbox_id),
+                        (user_id, outbox_id, new_status, message[:500]),
                     )
                     results.append(
                         OfflineSyncResultItem(
