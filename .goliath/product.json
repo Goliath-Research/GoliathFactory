@@ -3,7 +3,7 @@
   "id": "goliathfactory",
   "name": "GoliathFactory",
   "tagline": "Manufacturing operations on GoliathApp: travelers, QC, lot genealogy, NCR/CAPA, inventory, and maintenance.",
-  "description": "GoliathFactory specializes GoliathApp for 10–50 person manufacturers (precision CNC/machining shops serving aerospace and medical, and food processors). It records parts and routings, work orders and signed travelers, inspection plans and results, gauges and calibration, lot genealogy, nonconformances and CAPA, controlled documents, and maintenance, with every operator, QA and manager action typed, signed and recorded. Workflows run on the GoliathApp Workflow Engine; inventory and purchasing use a shared GoliathApp module; accounting syncs through a pluggable adapter (QuickBooks Online, ERPNext). This repository holds the catalog entry and plan; implementation is planned.",
+  "description": "GoliathFactory specializes GoliathApp for 10–50 person manufacturers (precision CNC/machining shops serving aerospace and medical, and food processors). Phase 1 delivers PostgreSQL schemas for parts, routings, work orders, traveler steps, and lot genealogy; the semantic namespace `mfg`; Factory NavTree nodes for work orders, shop-floor traveler, and traceability; and typed ActionSpec stubs for release and sign-off. Inventory and purchasing use the shared GoliathApp `inv` module (not duplicated in this repo). Workflows run on the GoliathApp Workflow Engine; accounting syncs through a pluggable adapter (QuickBooks Online, ERPNext).",
   "category": "application",
   "features": [
     {
@@ -16,7 +16,7 @@
     },
     {
       "title": "Inventory and purchasing",
-      "description": "Item master, supplier items and price breaks, approved suppliers, stock by bin and lot, receiving with incoming inspection."
+      "description": "Item master, supplier items and price breaks, approved suppliers, stock by bin and lot, receiving with incoming inspection (GoliathApp `inv` module)."
     },
     {
       "title": "Audit trail and e-signatures",
@@ -31,5 +31,5 @@
   "related": ["goliathapp", "goliathcrop"],
   "dependsOn": ["goliathapp"],
   "license": "MIT",
-  "status": "planned"
+  "status": "in_development"
 }
