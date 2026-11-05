@@ -78,14 +78,55 @@ def test_fsma_csv_helper_sorted_header() -> None:
     assert "shipping" in lines[1]
 
 
-def test_offline_permission_denies_inspection_without_granted_list() -> None:
-    from goliath_factory.offline.permissions import assert_offline_domain_permission
+def test_offline_permission_denies_inspection_without_rbac(monkeypatch: pytest.MonkeyPatch) -> None:
+    from goliath_factory.offline import permissions
 
+    monkeypatch.setattr(permissions, "user_has_permission", lambda *_a, **_k: False)
     with pytest.raises(RuntimeError, match="mfg.quality.inspect"):
-        assert_offline_domain_permission(
+        permissions.assert_offline_domain_permission(
             "mfg.inspection_result.record",
             context={"user_id": 1},
         )
+
+
+def test_offline_permission_allows_inspection_with_rbac(monkeypatch: pytest.MonkeyPatch) -> None:
+    from goliath_factory.offline import permissions
+
+    def _grant(user_id: int, permission: str, *, cur=None) -> bool:
+        assert user_id == 42
+        assert permission == "mfg.quality.inspect"
+        return True
+
+    monkeypatch.setattr(permissions, "user_has_permission", _grant)
+    permissions.assert_offline_domain_permission(
+        "mfg.inspection_result.record",
+        context={"user_id": 42},
+    )
+
+
+def test_offline_permission_denies_traveler_without_rbac(monkeypatch: pytest.MonkeyPatch) -> None:
+    from goliath_factory.offline import permissions
+
+    monkeypatch.setattr(permissions, "user_has_permission", lambda *_a, **_k: False)
+    with pytest.raises(RuntimeError, match="mfg.traveler.sign"):
+        permissions.assert_offline_domain_permission(
+            "mfg.traveler_step.sign_off",
+            context={"user_id": 7},
+        )
+
+
+def test_offline_permission_allows_traveler_with_rbac(monkeypatch: pytest.MonkeyPatch) -> None:
+    from goliath_factory.offline import permissions
+
+    monkeypatch.setattr(
+        permissions,
+        "user_has_permission",
+        lambda _uid, perm, **_: perm == "mfg.traveler.sign",
+    )
+    permissions.assert_offline_domain_permission(
+        "mfg.traveler_step.start",
+        context={"user_id": 7},
+    )
 
 
 def test_machine_ingest_demo_mode() -> None:
