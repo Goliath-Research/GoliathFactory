@@ -210,6 +210,7 @@ DECLARE
   v_part_revision_id integer;
   v_plan_id integer;
   v_fai_id integer;
+  v_existing_status text;
 BEGIN
   IF p_user_id IS NULL THEN
     PERFORM portal.fn_semantic_raise('GS401', 'user required');
@@ -232,6 +233,15 @@ BEGIN
       LIMIT 1
     )
   );
+  IF v_plan_id IS NULL THEN
+    PERFORM portal.fn_semantic_raise('GS409', 'active inspection plan required to start FAI');
+  END IF;
+  SELECT f.status INTO v_existing_status
+  FROM fac_qual.first_article_reports f
+  WHERE f.work_order_id = p_work_order_id;
+  IF v_existing_status IS NOT NULL THEN
+    PERFORM portal.fn_semantic_raise('GS409', 'FAI already exists for work order');
+  END IF;
   PERFORM set_config('goliath.mfg.user_id', p_user_id::text, true);
   INSERT INTO fac_qual.first_article_reports (
     site_id,
@@ -249,8 +259,6 @@ BEGIN
     'in_progress',
     'AS9102-1'
   )
-  ON CONFLICT (work_order_id) DO UPDATE
-  SET inspection_plan_id = COALESCE(EXCLUDED.inspection_plan_id, fac_qual.first_article_reports.inspection_plan_id)
   RETURNING id INTO v_fai_id;
   PERFORM fac_audit.sp_append(
     v_site_id,
@@ -299,22 +307,23 @@ BEGIN
   IF v_status = 'approved' THEN
     PERFORM portal.fn_semantic_raise('GS409', 'FAI already approved');
   END IF;
-  IF v_plan_id IS NOT NULL THEN
-    SELECT count(*) INTO v_required
-    FROM fac_qual.inspection_characteristics ic
-    WHERE ic.inspection_plan_id = v_plan_id;
-    SELECT count(DISTINCT ir.characteristic_id) INTO v_recorded
-    FROM fac_qual.inspection_results ir
-    JOIN fac_qual.inspection_characteristics ic ON ic.id = ir.characteristic_id
-    WHERE ic.inspection_plan_id = v_plan_id
-      AND ir.work_order_id = v_work_order_id
-      AND ir.pass_fail = 'pass';
-    IF v_required > 0 AND v_recorded < v_required THEN
-      PERFORM portal.fn_semantic_raise(
-        'GS409',
-        'record passing results for all plan characteristics before FAI approval'
-      );
-    END IF;
+  IF v_plan_id IS NULL THEN
+    PERFORM portal.fn_semantic_raise('GS409', 'inspection plan required before FAI approval');
+  END IF;
+  SELECT count(*) INTO v_required
+  FROM fac_qual.inspection_characteristics ic
+  WHERE ic.inspection_plan_id = v_plan_id;
+  SELECT count(DISTINCT ir.characteristic_id) INTO v_recorded
+  FROM fac_qual.inspection_results ir
+  JOIN fac_qual.inspection_characteristics ic ON ic.id = ir.characteristic_id
+  WHERE ic.inspection_plan_id = v_plan_id
+    AND ir.work_order_id = v_work_order_id
+    AND ir.pass_fail = 'pass';
+  IF v_required > 0 AND v_recorded < v_required THEN
+    PERFORM portal.fn_semantic_raise(
+      'GS409',
+      'record passing results for all plan characteristics before FAI approval'
+    );
   END IF;
   PERFORM set_config('goliath.mfg.user_id', p_user_id::text, true);
   v_hash := COALESCE(
@@ -418,7 +427,13 @@ BEGIN
     v_doc || jsonb_build_object('coc_number', v_coc_number, 'record_hash', v_hash),
     v_hash,
     p_user_id
-  );
+  )
+  ON CONFLICT (site_id, coc_number) DO UPDATE
+  SET
+    document_json = EXCLUDED.document_json,
+    record_hash = EXCLUDED.record_hash,
+    generated_at = now(),
+    generated_by_user_id = EXCLUDED.generated_by_user_id;
   PERFORM fac_audit.sp_append(
     v_site_id,
     'lot',

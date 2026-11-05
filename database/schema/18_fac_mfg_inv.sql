@@ -144,6 +144,22 @@ BEGIN
   ) AS i;
 
   genealogy_link_id := NULL;
+  IF v_output_lot_id IS NULL THEN
+    PERFORM set_config('goliath.mfg.user_id', p_user_id::text, true);
+    INSERT INTO fac_trace.lots (site_id, lot_number, kind)
+    VALUES (v_site_id, 'WO-' || p_work_order_id::text, 'production')
+    ON CONFLICT (site_id, lot_number) DO UPDATE SET kind = EXCLUDED.kind
+    RETURNING id INTO v_output_lot_id;
+
+    UPDATE fac_prod.work_orders
+    SET output_lot_id = v_output_lot_id
+    WHERE id = p_work_order_id AND output_lot_id IS NULL;
+
+    SELECT wo.output_lot_id INTO v_output_lot_id
+    FROM fac_prod.work_orders wo
+    WHERE wo.id = p_work_order_id;
+  END IF;
+
   SELECT t.trace_lot_id INTO v_trace_lot_id
   FROM fac_mfg_inv.stock_lot_trace t
   WHERE t.stock_lot_id = p_stock_lot_id;
