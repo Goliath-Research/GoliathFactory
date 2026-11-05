@@ -124,7 +124,16 @@
   "inv.purchase_order.list": [
     {
       "purchase_order_id": 44,
-      "status": "open"
+      "status": "open",
+      "po_number": "PO-10044"
+    }
+  ],
+  "inv.supplier_item.list": [
+    {
+      "supplier_code": "METALCO",
+      "supplier_part_number": "6061-T651-PLT",
+      "item_number": "RAW-4140",
+      "preferred": true
     }
   ]
 }

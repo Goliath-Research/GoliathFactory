@@ -17,7 +17,7 @@ NAV_SPEC = (
     ("Gauges", "Factory", 28, "mfg_gauges", "mfg.gauge.due_calibration"),
     ("Traceability", "Factory", 30, "mfg_traceability", "mfg.lot.genealogy"),
     ("Inventory & purchasing", "Factory", 35, "mfg_inv", "inv.item.list"),
-    ("Receiving (pilot)", "Factory", 36, "mfg_receiving", "mfg.inv.receive_stub"),
+    ("Receiving", "Factory", 36, "mfg_receiving", "inv.stock.receive"),
 )
 
 

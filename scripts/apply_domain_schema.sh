@@ -50,6 +50,7 @@ SCRIPTS=(
   15_fac_trace_coc.sql
   16_fac_mfg_api_phase3.sql
   17_fac_semantic_phase3.sql
+  18_fac_mfg_inv.sql
 )
 
 for name in "${SCRIPTS[@]}"; do

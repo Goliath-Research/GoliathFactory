@@ -27,7 +27,8 @@ Scripts under `database/schema/` are idempotent (`CREATE IF NOT EXISTS`, `CREATE
 | `fac_doc` | Controlled documents and revision workflow stubs |
 | `fac_trace` | Lots, genealogy, certificates of conformance |
 | `fac_audit` | Append-only `audit_log`; e-sign columns on traveler steps |
-| `fac_inv_hooks` | Receive/issue bridge until GoliathApp `inv` module |
+| `fac_mfg_inv` | `inv` receive/issue wrappers + stock-lot → trace-lot map |
+| `fac_inv_hooks` | Legacy Phase 2 stubs (superseded by `fac_mfg_inv`) |
 
 Phase 3 adds `11`–`17` schema scripts (CAPA, gauge, doc, FAI, CoC, APIs, semantic reads). Semantic **views** (`v_*`) back `storage_relation` on entities. Named reads use **functions** scoped to the session user (organization membership and site).
 

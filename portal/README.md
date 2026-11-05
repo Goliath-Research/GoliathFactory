@@ -19,8 +19,8 @@ Serve the `portal/` directory over HTTP and open `views/shell.html`, or load a f
 | `mfg.document.list` | Controlled documents + change stubs |
 | `mfg.fai.by_work_order` | AS9102 first article |
 | `mfg.lot.genealogy` | Lot trace tree + CoC export |
-| `inv.item.list` | Inventory & purchasing (GoliathApp `inv` module) |
-| `mfg.inv.receive_stub` | Receiving hook (until GoliathApp `inv` merges) |
+| `inv.item.list` | Inventory & purchasing (GoliathApp `inv`) |
+| `inv.stock.receive` | Receiving + trace lot (`fac_mfg_inv`) |
 | `mfg.label.traveler_print` | Printable traveler label (browser print) |
 
 API helpers live in `static/mfg-api.js` (`MfgPortal.runSemanticRequest`, `MfgPortal.runAction`).

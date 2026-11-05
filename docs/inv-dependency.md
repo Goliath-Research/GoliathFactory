@@ -1,34 +1,28 @@
 # GoliathApp `inv` module dependency
 
-GoliathFactory **does not** ship an `inv` schema. Item master, stock, POs, and receipts are owned by GoliathApp ([inventory module plan](https://github.com/Goliath-Research/GoliathApp/pull/34)).
+GoliathFactory **does not** ship an `inv` schema. Item master, stock, POs, ASL, cycle counts, and costing are owned by GoliathApp ([inventory module](https://github.com/Goliath-Research/GoliathApp/blob/main/docs/inventory-module.md), merged on `main` as **`1a0fe26`** / PR [#34](https://github.com/Goliath-Research/GoliathApp/pull/34)).
 
-| Status (Nov 2026) | Detail |
+| Integration | Detail |
 | --- | --- |
-| GoliathApp PR | [#34 — domain-neutral inventory and purchasing](https://github.com/Goliath-Research/GoliathApp/pull/34) — **open**, not merged on `main` |
-| GoliathFactory hooks | `fac_inv_hooks.sp_receive_with_inspection`, `fac_inv_hooks.sp_issue_to_work_order` |
-| Detection | `fac_inv_hooks.fn_inv_schema_ready()` → true when `inv.sp_stock_receive` exists |
-| Actions (Factory) | `mfg.inv.receive_stub`, `mfg.inv.issue_to_work_order_stub` (until wired overrides) |
-| Actions (GoliathApp `inv`) | `inv.stock.receive`, `inv.stock.adjust`, `inv.stock.issue` |
-| Portal | Factory › Inventory & purchasing → `inv.item.list` / `inv.purchase_order.list`; Receiving → stub action |
+| Schema | Apply GoliathApp `inv_*.sql` before Factory domain DDL |
+| Reads | `inv.item.list`, `inv.purchase_order.list`, `inv.stock_lot.by_item`, `inv.supplier_item.list` |
+| Writes (core) | `inv.stock.receive`, `inv.stock.adjust`, `inv.stock.issue` → `inv.sp_*` |
+| Factory bridge | `fac_mfg_inv` (`18_fac_mfg_inv.sql`) wraps receive/issue and maps `inv.stock_lot` → `fac_trace.lots` |
+| Action overrides | Factory catalog overrides `inv.stock.receive` and `inv.stock.issue` (`overrides="inv"`) |
+| Domain action | `mfg.inv.issue_to_work_order` → `fac_mfg_inv.sp_issue_to_work_order` |
 
-## Published `inv` API shapes (PR branch `cursor/inv-module-1977`)
+## Factory receive / issue flow
 
-Semantic reads (namespace `inv`):
+1. **Receive:** `inv.stock.receive` (override) calls `inv.sp_stock_receive`, then creates a material lot in `fac_trace` and row in `fac_mfg_inv.stock_lot_trace`.
+2. **Issue to WO:** `mfg.inv.issue_to_work_order` or `inv.stock.issue` with `ref_type=work_order` calls `inv.sp_stock_issue_stub` and inserts `fac_trace.lot_links` (consume) when the work order has an `output_lot_id`.
+3. **Incoming inspection:** record results with `mfg.inspection_result.record` after receipt (QC hold rules are deployment-specific).
 
-| `request_code` | Params | Row highlights |
-| --- | --- | --- |
-| `inv.item.list` | `organization_id` | `item_id`, `item_number`, `qty_on_hand`, `avg_unit_cost` |
-| `inv.purchase_order.list` | `organization_id`, optional `status` | `purchase_order_id`, `status`, supplier fields |
-| `inv.stock_lot.by_item` | `organization_id`, `item_id` | bin/lot on-hand |
-| `inv.supplier_item.list` | `organization_id`, optional `item_id` | ASL-linked supplier catalog, price breaks |
+ASL enforcement and moving-average costing remain inside **`inv.sp_stock_receive`**; Factory does not duplicate those rules.
 
-Write paths use gateway actions backed by `inv.sp_stock_receive`, `inv.sp_stock_adjust`, and issue stub with opaque `ref_type` / `ref_id` for child genealogy.
+## Permissions
 
-Factory-specific behavior after merge:
+Grant storekeeper roles GoliathApp permissions `inv.stock.receive`, `inv.stock.adjust`, `inv.stock.issue`, plus Factory `mfg.inv.issue` for the domain issue action. See `database/schema/04_rbac_mfg.sql` notes.
 
-1. Override or wrap `inv.stock.receive` / `inv.stock.issue` to run incoming inspection and `fac_trace.lot_links`.
-2. Map `fac_eng.sites.organization_id` to `inv` organization scope (hooks already return `organization_id` when `inv` is present).
-3. Enable GoliathApp inventory NavTree nodes; Factory adds Quality/purchasing frames only where domain-specific.
-4. Drop or narrow `mfg.inv.*_stub` actions once overrides are registered.
+## Legacy `fac_inv_hooks`
 
-ASL, price breaks, reorder points, cycle counts, and moving-average costing remain in **`inv`**; do not duplicate tables in GoliathFactory.
+Phase 2 stub schema `fac_inv_hooks` in `09_fac_mfg_api.sql` is superseded by `fac_mfg_inv`. New deployments should rely on overrides; hooks are not called from Factory handlers after Phase 3 wiring.

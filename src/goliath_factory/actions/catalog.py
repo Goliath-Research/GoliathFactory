@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from goliath_app.actions.spec import ActionExposure, ActionLevel, ActionSpec
 
+from goliath_app.inv.models import IssueStockStubInput
+
 from goliath_factory.actions.models import (
     CapaCloseInput,
     CapaCloseOutput,
@@ -19,10 +21,8 @@ from goliath_factory.actions.models import (
     GaugeLockoutCheckOutput,
     InspectionResultRecordInput,
     InspectionResultRecordOutput,
-    InvIssueToWorkOrderStubInput,
-    InvIssueToWorkOrderStubOutput,
-    InvReceiveStubInput,
-    InvReceiveStubOutput,
+    InvIssueToWorkOrderInput,
+    InvIssueToWorkOrderOutput,
     LotCocGenerateInput,
     LotCocGenerateOutput,
     NcrDispositionInput,
@@ -35,6 +35,11 @@ from goliath_factory.actions.models import (
     TravelerStepStartOutput,
     WorkOrderReleaseInput,
     WorkOrderReleaseOutput,
+)
+from goliath_factory.inv.models import (
+    MfgIssueStockOutput,
+    MfgReceiveStockInput,
+    MfgReceiveStockOutput,
 )
 
 ACTIONS: list[ActionSpec] = [
@@ -247,35 +252,59 @@ ACTIONS: list[ActionSpec] = [
         in_process_handler="goliath_factory.actions.handlers:handle_lot_coc_generate",
     ),
     ActionSpec(
-        action_name="mfg.inv.receive_stub",
+        action_name="inv.stock.receive",
         namespace="mfg",
-        level=ActionLevel.DOMAIN,
-        entity_code="item",
-        display_name="Receive with inspection (stub)",
-        description="Hook for incoming receipt + inspection until GoliathApp inv module is merged.",
+        level=ActionLevel.CORE,
+        entity_code="stock_lot",
+        display_name="Receive stock",
+        description=(
+            "Receive a PO line via inv.sp_stock_receive and create a fac_trace material lot "
+            "for genealogy when a site is in scope."
+        ),
         exposure=ActionExposure.RBAC,
-        required_permission="mfg.inv.receive",
-        input_model=InvReceiveStubInput,
-        output_model=InvReceiveStubOutput,
+        required_permission="inv.stock.receive",
+        input_model=MfgReceiveStockInput,
+        output_model=MfgReceiveStockOutput,
         schema_version="1",
-        capability="mfg.inv",
-        tool="mfg-inv-receive-stub",
-        in_process_handler="goliath_factory.actions.handlers:handle_inv_receive_stub",
+        capability="inv.stock",
+        tool="inv.stock.receive",
+        overrides="inv",
+        in_process_handler="goliath_factory.actions.handlers:handle_inv_stock_receive",
     ),
     ActionSpec(
-        action_name="mfg.inv.issue_to_work_order_stub",
+        action_name="inv.stock.issue",
+        namespace="mfg",
+        level=ActionLevel.CORE,
+        entity_code="stock_lot",
+        display_name="Issue stock",
+        description=(
+            "Issue from a stock lot through inv.sp_stock_issue_stub; links fac_trace genealogy "
+            "when ref_type is work_order."
+        ),
+        exposure=ActionExposure.RBAC,
+        required_permission="inv.stock.issue",
+        input_model=IssueStockStubInput,
+        output_model=MfgIssueStockOutput,
+        schema_version="1",
+        capability="inv.stock",
+        tool="inv.stock.issue",
+        overrides="inv",
+        in_process_handler="goliath_factory.actions.handlers:handle_inv_stock_issue",
+    ),
+    ActionSpec(
+        action_name="mfg.inv.issue_to_work_order",
         namespace="mfg",
         level=ActionLevel.DOMAIN,
         entity_code="work_order",
-        display_name="Issue to work order (stub)",
-        description="Hook for lot issue to traveler until GoliathApp inv module is merged.",
+        display_name="Issue to work order",
+        description="Issue stock to a work order with inv issue and fac_trace consume link.",
         exposure=ActionExposure.RBAC,
         required_permission="mfg.inv.issue",
-        input_model=InvIssueToWorkOrderStubInput,
-        output_model=InvIssueToWorkOrderStubOutput,
+        input_model=InvIssueToWorkOrderInput,
+        output_model=InvIssueToWorkOrderOutput,
         schema_version="1",
         capability="mfg.inv",
-        tool="mfg-inv-issue-stub",
-        in_process_handler="goliath_factory.actions.handlers:handle_inv_issue_to_work_order_stub",
+        tool="mfg-inv-issue",
+        in_process_handler="goliath_factory.actions.handlers:handle_inv_issue_to_work_order",
     ),
 ]

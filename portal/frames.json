@@ -13,7 +13,7 @@
     "mfg.fai.by_work_order": { "view": "views/fai.html", "title": "First article" },
     "mfg.lot.genealogy": { "view": "views/genealogy.html", "title": "Lot genealogy" },
     "inv.item.list": { "view": "views/purchasing.html", "title": "Inventory & purchasing" },
-    "mfg.inv.receive_stub": { "view": "views/receiving.html", "title": "Receiving" },
+    "inv.stock.receive": { "view": "views/receiving.html", "title": "Receiving" },
     "mfg.label.traveler_print": { "view": "views/label-print.html", "title": "Traveler label" }
   }
 }

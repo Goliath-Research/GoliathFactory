@@ -95,7 +95,7 @@ BEGIN
     v_root_id, 'Inventory & purchasing', 35, 'mfg_inv', 'inv.item.list'
   );
   PERFORM fac_eng.sp_register_mfg_nav_child(
-    v_root_id, 'Receiving (pilot)', 36, 'mfg_receiving', 'mfg.inv.receive_stub'
+    v_root_id, 'Receiving', 36, 'mfg_receiving', 'inv.stock.receive'
   );
 END;
 $$;

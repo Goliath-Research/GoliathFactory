@@ -9,11 +9,8 @@
 --   mfg.gauge.read
 --   mfg.document.read, mfg.document.write, mfg.document.approve
 --   mfg.audit.read
---   mfg.inv.receive, mfg.inv.issue (stub actions until platform inv module)
--- Planned factory roles (plant manager, supervisor, operator, quality, maintenance, buyer,
--- auditor) and Role2Node grants are applied per organization scope after roles exist —
--- see docs/plan.md NavTree.
---
--- Inventory and purchasing permissions live in the GoliathApp `inv` module; do not duplicate here.
+--   mfg.inv.issue (domain issue-to-work-order)
+--   inv.stock.receive, inv.stock.adjust, inv.stock.issue (GoliathApp inv module; Factory overrides receive/issue)
+-- Planned factory roles
 
 SELECT 1;

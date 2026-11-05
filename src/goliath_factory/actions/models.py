@@ -124,37 +124,22 @@ class LotCocGenerateOutput(BaseModel):
     document: dict[str, Any]
 
 
-class InvReceiveStubInput(BaseModel):
+class InvIssueToWorkOrderInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    site_id: int
-    item_ref: str
+    organization_id: int
+    work_order_id: int
+    stock_lot_id: int
     quantity: float
-    lot_number: str | None = None
 
 
-class InvReceiveStubOutput(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    status: str
-    dependency: str | None = None
-    detail: dict[str, Any]
-
-
-class InvIssueToWorkOrderStubInput(BaseModel):
+class InvIssueToWorkOrderOutput(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     work_order_id: int
-    stock_lot_ref: str
-    quantity: float
-
-
-class InvIssueToWorkOrderStubOutput(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    status: str
-    dependency: str | None = None
-    detail: dict[str, Any]
+    stock_move_id: int
+    qty_on_hand: float
+    genealogy_link_id: int | None = None
 
 
 class CapaCloseInput(BaseModel):
