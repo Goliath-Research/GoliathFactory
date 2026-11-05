@@ -76,6 +76,15 @@ def test_fsma_csv_helper_sorted_header() -> None:
     assert "shipping" in lines[1]
 
 
+def test_offline_permission_allows_without_granted_list() -> None:
+    from goliath_factory.offline.permissions import assert_offline_domain_permission
+
+    assert_offline_domain_permission(
+        "mfg.inspection_result.record",
+        context={"user_id": 1},
+    )
+
+
 def test_machine_ingest_demo_mode() -> None:
     out = handle_machine_ingest_observation(
         {
