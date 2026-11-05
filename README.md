@@ -2,7 +2,7 @@
 
 GoliathApp specialization for manufacturing operations: work orders and signed travelers, QC inspections, lot traceability and genealogy, NCR/CAPA, inventory and purchasing, and maintenance. Initial targets are 10–50 person precision shops (AS9100, ISO 13485, ISO 9001) and food processors (FSMA 204) in Florida.
 
-Status: **Phase 4 maintenance and SPC in development** — assets and PM schedules, downtime logging, SPC control charts (X-bar/R, I-MR), CMM CSV import stub, and PM due DomainPrograms (dual activation). Phase 3 quality and purchasing is on `main`. See [`docs/phase4-status.md`](docs/phase4-status.md), [`docs/phase3-status.md`](docs/phase3-status.md), and [`docs/plan.md`](docs/plan.md).
+Status: **Phase 5 complete** — FSMA 204 food-processor profile (`.goliath/factory-config.json`), offline tablet outbox, MTConnect/OPC UA machine stubs, plus Phase 4 maintenance/SPC on `main`. See [`docs/phase5-status.md`](docs/phase5-status.md), [`docs/phase4-status.md`](docs/phase4-status.md), and [`docs/plan.md`](docs/plan.md).
 
 ## Layout
 
@@ -10,6 +10,11 @@ Status: **Phase 4 maintenance and SPC in development** — assets and PM schedul
 | --- | --- |
 | [`portal/`](portal/) | Tablet-friendly HTML views, `frames.json`, and `MfgPortal` API helpers |
 | [`docs/plan.md`](docs/plan.md) | Full plan: domain model, inventory, workflows, DomainPrograms, schema, roles, views, roadmap, decisions |
+| [`docs/phase5-status.md`](docs/phase5-status.md) | Phase 5 checklist (FSMA, offline, machines) |
+| [`docs/fsma-204-profile.md`](docs/fsma-204-profile.md) | Food-processor profile and CTE/KDE |
+| [`docs/offline-tablet.md`](docs/offline-tablet.md) | Offline queue limits and sync |
+| [`docs/machine-monitoring.md`](docs/machine-monitoring.md) | MTConnect/OPC UA stubs and incomplete edges |
+| [`.goliath/factory-config.json`](.goliath/factory-config.json) | Deploy profile flag (`precision_shop` / `food_processor`) |
 | [`docs/phase4-status.md`](docs/phase4-status.md) | Phase 4 checklist vs plan |
 | [`docs/cmm-import.md`](docs/cmm-import.md) | CMM import stub and incomplete edges |
 | [`domain_programs/README.md`](domain_programs/README.md) | PM due, SPC, and CMM DomainPrograms |

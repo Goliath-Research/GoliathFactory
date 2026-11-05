@@ -15,6 +15,9 @@ from goliath_factory.semantic.models import (
     FirstArticleRow,
     AssetPmDueParams,
     AssetRow,
+    FsmaCteByLotParams,
+    FsmaCteInWindowParams,
+    FsmaCteRow,
     SpcSeriesParams,
     SpcSeriesRow,
     GaugeDueCalibrationParams,
@@ -316,6 +319,36 @@ ASSET_ENTITY = SemanticEntitySpec(
     ),
 )
 
+FSMA_CTE_ENTITY = SemanticEntitySpec(
+    namespace="mfg",
+    code="fsma_cte",
+    display_name="FSMA trace event",
+    description="FSMA 204 Critical Tracking Event with Key Data Elements layered on lot genealogy.",
+    schema_version="1",
+    row_model=FsmaCteRow,
+    storage_relation="fac_trace.v_fsma_cte",
+    attributes=(
+        SemanticAttributeSpec("cte_event_id", "cte_event_id", "integer", "key", ()),
+        SemanticAttributeSpec("site_id", "site_id", "integer", "filter", ("eq",)),
+        SemanticAttributeSpec("cte_type", "cte_type", "string", "attribute", ("eq", "in")),
+        SemanticAttributeSpec("lot_id", "lot_id", "integer", "filter", ("eq",)),
+        SemanticAttributeSpec(
+            "traceability_lot_code",
+            "traceability_lot_code",
+            "string",
+            "label",
+            ("eq", "ilike"),
+        ),
+        SemanticAttributeSpec(
+            "event_at",
+            "event_at",
+            "string",
+            "attribute",
+            ("lte", "gte"),
+        ),
+    ),
+)
+
 SEMANTIC_CATALOG: list[SemanticEntitySpec] = [
     PART_ENTITY,
     ROUTING_ENTITY,
@@ -330,6 +363,7 @@ SEMANTIC_CATALOG: list[SemanticEntitySpec] = [
     DOCUMENT_ENTITY,
     FIRST_ARTICLE_ENTITY,
     ASSET_ENTITY,
+    FSMA_CTE_ENTITY,
 ]
 
 SEMANTIC_REQUESTS: list[SemanticRequestSpec] = [
@@ -488,5 +522,29 @@ SEMANTIC_REQUESTS: list[SemanticRequestSpec] = [
         result_row_model=SpcSeriesRow,
         required_permission="mfg.quality.read",
         max_rows=500,
+    ),
+    SemanticRequestSpec(
+        request_code="mfg.fsma.cte_by_lot",
+        version="1",
+        namespace="mfg",
+        entity_code="fsma_cte",
+        target_kind="function",
+        target_name="fac_trace.fn_semantic_fsma_cte_by_lot",
+        params_model=FsmaCteByLotParams,
+        result_row_model=FsmaCteRow,
+        required_permission="mfg.fsma.read",
+        max_rows=500,
+    ),
+    SemanticRequestSpec(
+        request_code="mfg.fsma.cte_in_window",
+        version="1",
+        namespace="mfg",
+        entity_code="fsma_cte",
+        target_kind="function",
+        target_name="fac_trace.fn_semantic_fsma_cte_in_window",
+        params_model=FsmaCteInWindowParams,
+        result_row_model=FsmaCteRow,
+        required_permission="mfg.fsma.read",
+        max_rows=5000,
     ),
 ]

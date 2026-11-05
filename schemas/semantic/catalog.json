@@ -523,6 +523,243 @@
       "schema_version": "1",
       "storage_relation": "fac_qual.v_first_article"
     },
+    "mfg.fsma_cte": {
+      "attributes": [
+        {
+          "code": "cte_event_id",
+          "column_name": "cte_event_id",
+          "filterable_ops": [],
+          "json_type": "integer",
+          "role": "key"
+        },
+        {
+          "code": "site_id",
+          "column_name": "site_id",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "integer",
+          "role": "filter"
+        },
+        {
+          "code": "cte_type",
+          "column_name": "cte_type",
+          "filterable_ops": [
+            "eq",
+            "in"
+          ],
+          "json_type": "string",
+          "role": "attribute"
+        },
+        {
+          "code": "lot_id",
+          "column_name": "lot_id",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "integer",
+          "role": "filter"
+        },
+        {
+          "code": "traceability_lot_code",
+          "column_name": "traceability_lot_code",
+          "filterable_ops": [
+            "eq",
+            "ilike"
+          ],
+          "json_type": "string",
+          "role": "label"
+        },
+        {
+          "code": "event_at",
+          "column_name": "event_at",
+          "filterable_ops": [
+            "lte",
+            "gte"
+          ],
+          "json_type": "string",
+          "role": "attribute"
+        }
+      ],
+      "catalog_type_name": null,
+      "code": "fsma_cte",
+      "content_hash": "03358c99fa23b84323352f23e4d40d92400130cbfa0a11a9c43b18e848361562",
+      "description": "FSMA 204 Critical Tracking Event with Key Data Elements layered on lot genealogy.",
+      "display_name": "FSMA trace event",
+      "meta_class_id": null,
+      "meta_class_name": null,
+      "namespace": "mfg",
+      "row_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "cte_event_id": {
+            "title": "Cte Event Id",
+            "type": "integer"
+          },
+          "cte_type": {
+            "title": "Cte Type",
+            "type": "string"
+          },
+          "event_at": {
+            "format": "date-time",
+            "title": "Event At",
+            "type": "string"
+          },
+          "genealogy_link_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Genealogy Link Id"
+          },
+          "location_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Location Code"
+          },
+          "lot_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Lot Id"
+          },
+          "lot_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Lot Number"
+          },
+          "product_description": {
+            "title": "Product Description",
+            "type": "string"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Quantity"
+          },
+          "quantity_uom": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Quantity Uom"
+          },
+          "recorded_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Recorded At"
+          },
+          "recorded_by_user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Recorded By User Id"
+          },
+          "reference_doc_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Reference Doc Number"
+          },
+          "reference_doc_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Reference Doc Type"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "traceability_lot_code": {
+            "title": "Traceability Lot Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "cte_event_id",
+          "site_id",
+          "cte_type",
+          "event_at",
+          "traceability_lot_code",
+          "product_description",
+          "source"
+        ],
+        "title": "FsmaCteRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_fsma_cte_row",
+      "schema_id": "goliath.semantic/mfg/fsma_cte/1",
+      "schema_version": "1",
+      "storage_relation": "fac_trace.v_fsma_cte"
+    },
     "mfg.gauge": {
       "attributes": [
         {
@@ -2592,6 +2829,401 @@
       "schema_id": "goliath.semantic/mfg/mfg.fai.by_work_order/1",
       "target_kind": "function",
       "target_name": "fac_qual.fn_semantic_fai_by_work_order",
+      "version": "1"
+    },
+    "mfg.fsma.cte_by_lot": {
+      "base_namespace": null,
+      "content_hash": "75c662064f6dbe2ea80808dff1da15af54c89de1324e509b0d60f17d3cdc3b25",
+      "entity_code": "fsma_cte",
+      "filter_template": null,
+      "max_rows": 500,
+      "namespace": "mfg",
+      "params_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "lot_id": {
+            "title": "Lot Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "lot_id"
+        ],
+        "title": "FsmaCteByLotParams",
+        "type": "object"
+      },
+      "request_code": "mfg.fsma.cte_by_lot",
+      "required_permission": "mfg.fsma.read",
+      "result_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "cte_event_id": {
+            "title": "Cte Event Id",
+            "type": "integer"
+          },
+          "cte_type": {
+            "title": "Cte Type",
+            "type": "string"
+          },
+          "event_at": {
+            "format": "date-time",
+            "title": "Event At",
+            "type": "string"
+          },
+          "genealogy_link_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Genealogy Link Id"
+          },
+          "location_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Location Code"
+          },
+          "lot_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Lot Id"
+          },
+          "lot_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Lot Number"
+          },
+          "product_description": {
+            "title": "Product Description",
+            "type": "string"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Quantity"
+          },
+          "quantity_uom": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Quantity Uom"
+          },
+          "recorded_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Recorded At"
+          },
+          "recorded_by_user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Recorded By User Id"
+          },
+          "reference_doc_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Reference Doc Number"
+          },
+          "reference_doc_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Reference Doc Type"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "traceability_lot_code": {
+            "title": "Traceability Lot Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "cte_event_id",
+          "site_id",
+          "cte_type",
+          "event_at",
+          "traceability_lot_code",
+          "product_description",
+          "source"
+        ],
+        "title": "FsmaCteRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_fsma_cte_row",
+      "schema_id": "goliath.semantic/mfg/mfg.fsma.cte_by_lot/1",
+      "target_kind": "function",
+      "target_name": "fac_trace.fn_semantic_fsma_cte_by_lot",
+      "version": "1"
+    },
+    "mfg.fsma.cte_in_window": {
+      "base_namespace": null,
+      "content_hash": "03dfbd9196f626b006f141133c6bcdf2654d3540677d9c0e017be7d75a68f93b",
+      "entity_code": "fsma_cte",
+      "filter_template": null,
+      "max_rows": 5000,
+      "namespace": "mfg",
+      "params_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "hours": {
+            "default": 24,
+            "title": "Hours",
+            "type": "integer"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "site_id"
+        ],
+        "title": "FsmaCteInWindowParams",
+        "type": "object"
+      },
+      "request_code": "mfg.fsma.cte_in_window",
+      "required_permission": "mfg.fsma.read",
+      "result_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "cte_event_id": {
+            "title": "Cte Event Id",
+            "type": "integer"
+          },
+          "cte_type": {
+            "title": "Cte Type",
+            "type": "string"
+          },
+          "event_at": {
+            "format": "date-time",
+            "title": "Event At",
+            "type": "string"
+          },
+          "genealogy_link_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Genealogy Link Id"
+          },
+          "location_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Location Code"
+          },
+          "lot_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Lot Id"
+          },
+          "lot_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Lot Number"
+          },
+          "product_description": {
+            "title": "Product Description",
+            "type": "string"
+          },
+          "quantity": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Quantity"
+          },
+          "quantity_uom": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Quantity Uom"
+          },
+          "recorded_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Recorded At"
+          },
+          "recorded_by_user_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Recorded By User Id"
+          },
+          "reference_doc_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Reference Doc Number"
+          },
+          "reference_doc_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Reference Doc Type"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "traceability_lot_code": {
+            "title": "Traceability Lot Code",
+            "type": "string"
+          }
+        },
+        "required": [
+          "cte_event_id",
+          "site_id",
+          "cte_type",
+          "event_at",
+          "traceability_lot_code",
+          "product_description",
+          "source"
+        ],
+        "title": "FsmaCteRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_fsma_cte_row",
+      "schema_id": "goliath.semantic/mfg/mfg.fsma.cte_in_window/1",
+      "target_kind": "function",
+      "target_name": "fac_trace.fn_semantic_fsma_cte_in_window",
       "version": "1"
     },
     "mfg.gauge.due_calibration": {

@@ -18,6 +18,7 @@ NAV_SPEC = (
     ("Maintenance", "Factory", 29, "mfg_maintenance", "mfg.asset.pm_due"),
     ("SPC", "Quality", 35, "mfg_spc", "mfg.spc.series"),
     ("Traceability", "Factory", 30, "mfg_traceability", "mfg.lot.genealogy"),
+    ("FSMA trace (204)", "Factory", 31, "mfg_fsma_trace", "mfg.fsma.cte_in_window"),
     ("Inventory & purchasing", "Factory", 35, "mfg_inv", "inv.item.list"),
     ("Receiving", "Factory", 36, "mfg_receiving", "inv.stock.receive"),
 )

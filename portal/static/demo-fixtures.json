@@ -170,5 +170,26 @@
       "item_number": "RAW-4140",
       "preferred": true
     }
+  ],
+  "mfg.fsma.cte_in_window": [
+    {
+      "cte_event_id": 1,
+      "site_id": 1,
+      "cte_type": "shipping",
+      "event_at": "2026-11-05T08:00:00Z",
+      "lot_id": 501,
+      "lot_number": "LOT-501",
+      "traceability_lot_code": "TLC-BERRY-501",
+      "product_description": "Fresh strawberries 1 lb clamshell",
+      "quantity": 120,
+      "quantity_uom": "case",
+      "location_code": "COLD-1",
+      "reference_doc_type": "BOL",
+      "reference_doc_number": "BOL-9001",
+      "genealogy_link_id": null,
+      "recorded_by_user_id": 1,
+      "recorded_at": "2026-11-05T08:05:00Z",
+      "source": "manual"
+    }
   ]
 }

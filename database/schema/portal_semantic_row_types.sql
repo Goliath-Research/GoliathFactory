@@ -794,6 +794,80 @@ BEGIN
     );
   END IF;
 END $$;
+
+DO $$
+DECLARE
+  v_typname constant text := 'mfg_fsma_cte_row';
+  v_desired text[] := ARRAY['cte_event_id', 'site_id', 'cte_type', 'event_at', 'lot_id', 'lot_number', 'traceability_lot_code', 'product_description', 'quantity', 'quantity_uom', 'location_code', 'reference_doc_type', 'reference_doc_number', 'genealogy_link_id', 'recorded_by_user_id', 'recorded_at', 'source'];
+  v_desired_types text[] := ARRAY['integer', 'integer', 'text', 'timestamptz', 'integer', 'text', 'text', 'text', 'double precision', 'text', 'text', 'text', 'text', 'integer', 'integer', 'timestamptz', 'text'];
+  v_existing text[];
+  v_i int;
+BEGIN
+  SELECT array_agg(a.attname ORDER BY a.attnum)
+  INTO v_existing
+  FROM pg_type t
+  JOIN pg_namespace n ON n.oid = t.typnamespace
+  JOIN pg_class c ON c.oid = t.typrelid
+  JOIN pg_attribute a ON a.attrelid = c.oid AND a.attnum > 0 AND NOT a.attisdropped
+  WHERE n.nspname = 'portal' AND t.typname = v_typname AND t.typtype = 'c';
+
+  IF v_existing IS NULL THEN
+    CREATE TYPE portal.mfg_fsma_cte_row AS (
+  cte_event_id integer,
+  site_id integer,
+  cte_type text,
+  event_at timestamptz,
+  lot_id integer,
+  lot_number text,
+  traceability_lot_code text,
+  product_description text,
+  quantity double precision,
+  quantity_uom text,
+  location_code text,
+  reference_doc_type text,
+  reference_doc_number text,
+  genealogy_link_id integer,
+  recorded_by_user_id integer,
+  recorded_at timestamptz,
+  source text
+    );
+  ELSIF v_existing = v_desired THEN
+    NULL;
+  ELSIF coalesce(array_length(v_existing, 1), 0) < array_length(v_desired, 1)
+        AND v_existing = v_desired[1:array_length(v_existing, 1)] THEN
+    FOR v_i IN array_length(v_existing, 1) + 1 .. array_length(v_desired, 1) LOOP
+      BEGIN
+        EXECUTE format(
+          'ALTER TYPE portal.%I ADD ATTRIBUTE %I %s',
+          v_typname, v_desired[v_i], v_desired_types[v_i]
+        );
+      EXCEPTION
+        WHEN duplicate_column THEN NULL;
+      END;
+    END LOOP;
+  ELSE
+    DROP TYPE IF EXISTS portal.mfg_fsma_cte_row CASCADE;
+    CREATE TYPE portal.mfg_fsma_cte_row AS (
+  cte_event_id integer,
+  site_id integer,
+  cte_type text,
+  event_at timestamptz,
+  lot_id integer,
+  lot_number text,
+  traceability_lot_code text,
+  product_description text,
+  quantity double precision,
+  quantity_uom text,
+  location_code text,
+  reference_doc_type text,
+  reference_doc_number text,
+  genealogy_link_id integer,
+  recorded_by_user_id integer,
+  recorded_at timestamptz,
+  source text
+    );
+  END IF;
+END $$;
 DO $$
 BEGIN
   IF NOT EXISTS (

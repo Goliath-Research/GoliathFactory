@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GoliathFactory deployment profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "customerProfile"],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "customerProfile": {
+      "type": "string",
+      "enum": ["precision_shop", "food_processor"],
+      "description": "precision_shop: aerospace/medical defaults. food_processor: enables FSMA 204 CTE/KDE traceability nav and actions."
+    }
+  }
+}

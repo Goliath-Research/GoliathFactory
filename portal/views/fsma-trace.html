@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>FSMA trace</title>
+    <link rel="stylesheet" href="../static/mfg-shell.css" />
+  </head>
+  <body>
+    <main class="mfg-panel">
+      <h1>FSMA 204 traceability</h1>
+      <p class="hint">
+        Critical Tracking Events for the last 24 hours. Export produces a sortable CSV for audits.
+      </p>
+      <div id="status" class="status" aria-live="polite"></div>
+      <table id="cte-table">
+        <thead>
+          <tr>
+            <th>Event (UTC)</th>
+            <th>CTE</th>
+            <th>TLC</th>
+            <th>Product</th>
+            <th>Lot</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <button type="button" id="export-btn">Export 24h CSV</button>
+    </main>
+    <script src="../static/mfg-api.js"></script>
+    <script>
+      (async function () {
+        const statusEl = document.getElementById("status");
+        const tbody = document.querySelector("#cte-table tbody");
+        const site = MfgPortal.siteId();
+        try {
+          const rows = await MfgPortal.runSemanticRequest("mfg.fsma.cte_in_window", {
+            site_id: site,
+            hours: 24,
+          });
+          rows.forEach((row) => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `<td>${row.event_at || ""}</td><td>${row.cte_type}</td><td>${row.traceability_lot_code}</td><td>${row.product_description}</td><td>${row.lot_number || ""}</td>`;
+            tbody.appendChild(tr);
+          });
+          MfgPortal.setStatus(statusEl, `${rows.length} events in window`);
+        } catch (err) {
+          MfgPortal.setStatus(statusEl, err.message, true);
+        }
+        document.getElementById("export-btn").addEventListener("click", async () => {
+          try {
+            const out = await MfgPortal.runAction("mfg.fsma.export_24h", {
+              site_id: site,
+              window_hours: 24,
+            });
+            const blob = new Blob([out.csv_text || out.output?.csv_text || ""], {
+              type: "text/csv",
+            });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = out.filename || "fsma_trace.csv";
+            a.click();
+            URL.revokeObjectURL(url);
+            MfgPortal.setStatus(statusEl, "Export downloaded");
+          } catch (err) {
+            MfgPortal.setStatus(statusEl, err.message, true);
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

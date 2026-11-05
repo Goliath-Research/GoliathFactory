@@ -324,3 +324,108 @@ class CmmImportFileOutput(BaseModel):
 
     batch_id: int
     rows_inserted: int
+
+
+class FsmaRecordCteInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    site_id: int
+    cte_type: Literal["receiving", "transformation", "creation", "shipping"]
+    event_at: datetime
+    traceability_lot_code: str
+    product_description: str
+    lot_id: int | None = None
+    quantity: float | None = None
+    quantity_uom: str | None = None
+    location_code: str | None = None
+    reference_doc_type: str | None = None
+    reference_doc_number: str | None = None
+    genealogy_link_id: int | None = None
+    source: str = "manual"
+
+
+class FsmaRecordCteOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    cte_event_id: int
+
+
+class FsmaExport24hInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    site_id: int
+    window_hours: int = 24
+
+
+class FsmaExport24hOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    site_id: int
+    window_hours: int
+    row_count: int
+    csv_text: str
+    filename: str
+
+
+class OfflineEnqueueInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    site_id: int
+    client_device_id: str
+    idempotency_key: str
+    action_name: str
+    payload: dict[str, Any]
+    captured_at: datetime | None = None
+
+
+class OfflineEnqueueOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    outbox_id: int
+    status: str = "pending"
+
+
+class OfflineSyncInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    site_id: int
+    client_device_id: str
+    max_batch: int = 25
+
+
+class OfflineSyncResultItem(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    outbox_id: int
+    idempotency_key: str
+    status: str
+    conflict_reason: str | None = None
+
+
+class OfflineSyncOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    processed: int
+    synced: int
+    conflicts: int
+    results: list[OfflineSyncResultItem]
+
+
+class MachineIngestObservationInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    site_id: int
+    asset_id: int
+    source_protocol: Literal["mtconnect", "opcua"]
+    observed_at: datetime | None = None
+    mtconnect_xml: str | None = None
+    opcua_payload: dict[str, Any] | None = None
+
+
+class MachineIngestObservationOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    observation_id: int
+    downtime_event_id: int | None = None
+    incomplete_edges: list[str] = Field(default_factory=list)
+    demo: bool = False

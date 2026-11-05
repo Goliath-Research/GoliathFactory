@@ -24,6 +24,10 @@ from goliath_factory.actions.models import (
     CmmRegisterUploadOutput,
     DowntimeLogInput,
     DowntimeLogOutput,
+    FsmaExport24hInput,
+    FsmaExport24hOutput,
+    FsmaRecordCteInput,
+    FsmaRecordCteOutput,
     GaugeLockoutCheckInput,
     GaugeLockoutCheckOutput,
     InspectionResultRecordInput,
@@ -32,6 +36,11 @@ from goliath_factory.actions.models import (
     InvIssueToWorkOrderOutput,
     LotCocGenerateInput,
     LotCocGenerateOutput,
+    OfflineEnqueueInput,
+    OfflineEnqueueOutput,
+    OfflineSyncInput,
+    OfflineSyncOutput,
+    OfflineSyncResultItem,
     NcrDispositionInput,
     NcrDispositionOutput,
     NcrOpenInput,
@@ -45,6 +54,8 @@ from goliath_factory.actions.models import (
 )
 from goliath_factory.inv.models import MfgIssueStockOutput, MfgReceiveStockInput, MfgReceiveStockOutput
 from goliath_factory.db import connect, libpq_configured, user_id_from_context
+from goliath_factory.offline import ALLOWED_OFFLINE_ACTIONS, MAX_PAYLOAD_BYTES
+from goliath_factory.offline.sync import apply_offline_submission
 
 
 def _require_db_user(context: dict[str, Any] | None) -> int:
@@ -581,3 +592,204 @@ def handle_cmm_register_upload(
             batch_id = int(_fetch_one(cur, "sp_register_cmm_upload")[0])
         conn.commit()
     return CmmRegisterUploadOutput(batch_id=batch_id, status="pending").model_dump(mode="json")
+
+
+def handle_fsma_record_cte(
+    payload: dict[str, Any],
+    *,
+    context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    model = FsmaRecordCteInput.model_validate(payload)
+    user_id = _require_db_user(context)
+    with connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT fac_trace.sp_fsma_record_cte(
+                  %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
+                )
+                """,
+                (
+                    user_id,
+                    model.site_id,
+                    model.cte_type,
+                    model.event_at,
+                    model.traceability_lot_code,
+                    model.product_description,
+                    model.lot_id,
+                    model.quantity,
+                    model.quantity_uom,
+                    model.location_code,
+                    model.reference_doc_type,
+                    model.reference_doc_number,
+                    model.genealogy_link_id,
+                    model.source,
+                ),
+            )
+            cte_id = int(_fetch_one(cur, "sp_fsma_record_cte")[0])
+        conn.commit()
+    return FsmaRecordCteOutput(cte_event_id=cte_id).model_dump(mode="json")
+
+
+def handle_fsma_export_24h(
+    payload: dict[str, Any],
+    *,
+    context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    model = FsmaExport24hInput.model_validate(payload)
+    user_id = _require_db_user(context)
+    with connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT fac_trace.sp_fsma_export_traceability_csv(%s, %s, %s)
+                """,
+                (user_id, model.site_id, model.window_hours),
+            )
+            csv_text = str(_fetch_one(cur, "sp_fsma_export_traceability_csv")[0])
+            cur.execute(
+                """
+                SELECT row_count FROM fac_trace.fsma_traceability_exports
+                WHERE site_id = %s
+                ORDER BY generated_at DESC
+                LIMIT 1
+                """,
+                (model.site_id,),
+            )
+            count_row = cur.fetchone()
+        conn.commit()
+    row_count = int(count_row[0]) if count_row else csv_text.count("\n")
+    if csv_text.startswith("event_at_utc"):
+        row_count = max(0, row_count)
+    filename = f"fsma_traceability_site{model.site_id}_{model.window_hours}h.csv"
+    return FsmaExport24hOutput(
+        site_id=model.site_id,
+        window_hours=model.window_hours,
+        row_count=row_count,
+        csv_text=csv_text,
+        filename=filename,
+    ).model_dump(mode="json")
+
+
+def handle_offline_enqueue(
+    payload: dict[str, Any],
+    *,
+    context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    model = OfflineEnqueueInput.model_validate(payload)
+    if model.action_name not in ALLOWED_OFFLINE_ACTIONS:
+        raise ValueError(f"action not allowed offline: {model.action_name}")
+    encoded = json.dumps(model.payload, separators=(",", ":"), sort_keys=True)
+    if len(encoded.encode("utf-8")) > MAX_PAYLOAD_BYTES:
+        raise ValueError("offline payload exceeds size limit")
+    user_id = _require_db_user(context)
+    with connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT fac_prod.sp_offline_enqueue(
+                  %s, %s, %s, %s, %s, %s::jsonb, %s
+                )
+                """,
+                (
+                    user_id,
+                    model.site_id,
+                    model.client_device_id,
+                    model.idempotency_key,
+                    model.action_name,
+                    model.payload,
+                    model.captured_at,
+                ),
+            )
+            outbox_id = int(_fetch_one(cur, "sp_offline_enqueue")[0])
+        conn.commit()
+    return OfflineEnqueueOutput(outbox_id=outbox_id).model_dump(mode="json")
+
+
+def handle_offline_sync(
+    payload: dict[str, Any],
+    *,
+    context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    model = OfflineSyncInput.model_validate(payload)
+    user_id = _require_db_user(context)
+    max_batch = max(1, min(model.max_batch, 50))
+    results: list[OfflineSyncResultItem] = []
+    synced = 0
+    conflicts = 0
+    with connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT id, idempotency_key, action_name, payload_json, status
+                FROM fac_prod.offline_outbox
+                WHERE site_id = %s
+                  AND client_device_id = %s
+                  AND status = 'pending'
+                ORDER BY captured_at ASC
+                LIMIT %s
+                FOR UPDATE
+                """,
+                (model.site_id, model.client_device_id, max_batch),
+            )
+            rows = cur.fetchall()
+            for outbox_id, idem_key, action_name, payload_json, status in rows:
+                if status == "synced":
+                    continue
+                try:
+                    body = payload_json if isinstance(payload_json, dict) else json.loads(payload_json)
+                    result = apply_offline_submission(
+                        str(action_name),
+                        body,
+                        context={"user_id": user_id},
+                    )
+                    cur.execute(
+                        """
+                        UPDATE fac_prod.offline_outbox
+                        SET status = 'synced',
+                            synced_at = now(),
+                            server_result_json = %s::jsonb,
+                            conflict_reason = NULL
+                        WHERE id = %s
+                        """,
+                        (json.dumps(result), outbox_id),
+                    )
+                    synced += 1
+                    results.append(
+                        OfflineSyncResultItem(
+                            outbox_id=int(outbox_id),
+                            idempotency_key=str(idem_key),
+                            status="synced",
+                        )
+                    )
+                except Exception as exc:  # noqa: BLE001 — surface per-item offline failures
+                    message = str(exc)
+                    conflict = "409" in message or "already" in message.lower()
+                    new_status = "conflict" if conflict else "rejected"
+                    if conflict:
+                        conflicts += 1
+                    cur.execute(
+                        """
+                        UPDATE fac_prod.offline_outbox
+                        SET status = %s,
+                            synced_at = now(),
+                            conflict_reason = %s
+                        WHERE id = %s
+                        """,
+                        (new_status, message[:500], outbox_id),
+                    )
+                    results.append(
+                        OfflineSyncResultItem(
+                            outbox_id=int(outbox_id),
+                            idempotency_key=str(idem_key),
+                            status=new_status,
+                            conflict_reason=message[:500],
+                        )
+                    )
+        conn.commit()
+    return OfflineSyncOutput(
+        processed=len(results),
+        synced=synced,
+        conflicts=conflicts,
+        results=results,
+    ).model_dump(mode="json")
