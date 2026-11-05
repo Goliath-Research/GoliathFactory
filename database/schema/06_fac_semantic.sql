@@ -59,7 +59,7 @@ BEGIN
     AND (v_status IS NULL OR v.status = v_status)
     AND (v_due_before IS NULL OR v.due_date <= v_due_before)
     AND v.status <> 'closed'
-  ORDER BY v.due_date NULLS LAST, v.id
+  ORDER BY v.due_date NULLS LAST, v.work_order_id
   LIMIT v_lim;
 END;
 $$;
@@ -123,7 +123,7 @@ BEGIN
     v.site_id
   FROM fac_prod.v_traveler_step v
   WHERE v.work_order_id = v_work_order_id
-  ORDER BY v.seq, v.id
+  ORDER BY v.seq, v.traveler_step_id
   LIMIT v_lim;
 END;
 $$;

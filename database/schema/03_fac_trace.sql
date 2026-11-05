@@ -85,8 +85,8 @@ BEGIN
         tree.depth + 1,
         p_direction,
         ll.link_kind,
-        child.id,
-        child.lot_number
+        tree.lot_id,
+        tree.lot_number
       FROM tree
       JOIN fac_trace.lot_links ll ON ll.parent_lot_id = tree.lot_id
       JOIN fac_trace.lots child ON child.id = ll.child_lot_id
@@ -115,8 +115,8 @@ BEGIN
         tree.depth + 1,
         p_direction,
         ll.link_kind,
-        parent.id,
-        parent.lot_number
+        tree.lot_id,
+        tree.lot_number
       FROM tree
       JOIN fac_trace.lot_links ll ON ll.child_lot_id = tree.lot_id
       JOIN fac_trace.lots parent ON parent.id = ll.parent_lot_id
