@@ -96,6 +96,41 @@
       "locked_out": true
     }
   ],
+  "mfg.asset.pm_due": [
+    {
+      "asset_id": 1,
+      "asset_tag": "VMC-01",
+      "description": "Haas VF-2",
+      "work_center_code": "CNC-1",
+      "next_due_on": "2026-11-15",
+      "downtime_hours_30d": 4.5,
+      "status": "active"
+    }
+  ],
+  "mfg.spc.series": [
+    {
+      "characteristic_id": 1,
+      "characteristic_code": "DIA_1",
+      "point_index": 1,
+      "primary_value": 10.01,
+      "secondary_value": 0.04,
+      "center_line": 10.0,
+      "ucl": 10.05,
+      "lcl": 9.95,
+      "rule_violations": null
+    },
+    {
+      "characteristic_id": 1,
+      "characteristic_code": "DIA_1",
+      "point_index": 2,
+      "primary_value": 10.03,
+      "secondary_value": 0.06,
+      "center_line": 10.0,
+      "ucl": 10.05,
+      "lcl": 9.95,
+      "rule_violations": "WE2"
+    }
+  ],
   "mfg.document.list": [
     {
       "document_id": 1,

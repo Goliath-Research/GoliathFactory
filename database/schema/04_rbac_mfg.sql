@@ -7,6 +7,7 @@
 --   mfg.trace.read, mfg.trace.write
 --   mfg.quality.read, mfg.quality.inspect, mfg.quality.mrb, mfg.quality.approve
 --   mfg.gauge.read
+--   mfg.maint.read, mfg.maint.write
 --   mfg.document.read, mfg.document.write, mfg.document.approve
 --   mfg.audit.read
 --   mfg.inv.issue (domain issue-to-work-order)

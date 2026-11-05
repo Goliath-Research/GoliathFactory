@@ -13,6 +13,10 @@ from goliath_factory.semantic.models import (
     DocumentRow,
     FirstArticleByWorkOrderParams,
     FirstArticleRow,
+    AssetPmDueParams,
+    AssetRow,
+    SpcSeriesParams,
+    SpcSeriesRow,
     GaugeDueCalibrationParams,
     GaugeRow,
     GenealogyRow,
@@ -295,6 +299,23 @@ FIRST_ARTICLE_ENTITY = SemanticEntitySpec(
     ),
 )
 
+ASSET_ENTITY = SemanticEntitySpec(
+    namespace="mfg",
+    code="asset",
+    display_name="Maintenance asset",
+    description="Shop asset with PM schedule, next due date, and recent downtime.",
+    schema_version="1",
+    row_model=AssetRow,
+    storage_relation="fac_maint.v_asset",
+    attributes=(
+        SemanticAttributeSpec("asset_id", "asset_id", "integer", "key", ()),
+        SemanticAttributeSpec("site_id", "site_id", "integer", "filter", ("eq",)),
+        SemanticAttributeSpec("asset_tag", "asset_tag", "string", "label", ("eq", "ilike")),
+        SemanticAttributeSpec("next_due_on", "next_due_on", "date", "attribute", ("lte", "gte")),
+        SemanticAttributeSpec("status", "status", "string", "attribute", ("eq",)),
+    ),
+)
+
 SEMANTIC_CATALOG: list[SemanticEntitySpec] = [
     PART_ENTITY,
     ROUTING_ENTITY,
@@ -308,6 +329,7 @@ SEMANTIC_CATALOG: list[SemanticEntitySpec] = [
     GAUGE_ENTITY,
     DOCUMENT_ENTITY,
     FIRST_ARTICLE_ENTITY,
+    ASSET_ENTITY,
 ]
 
 SEMANTIC_REQUESTS: list[SemanticRequestSpec] = [
@@ -440,6 +462,30 @@ SEMANTIC_REQUESTS: list[SemanticRequestSpec] = [
         target_name="fac_qual.fn_semantic_fai_by_work_order",
         params_model=FirstArticleByWorkOrderParams,
         result_row_model=FirstArticleRow,
+        required_permission="mfg.quality.read",
+        max_rows=500,
+    ),
+    SemanticRequestSpec(
+        request_code="mfg.asset.pm_due",
+        version="1",
+        namespace="mfg",
+        entity_code="asset",
+        target_kind="function",
+        target_name="fac_maint.fn_semantic_asset_pm_due",
+        params_model=AssetPmDueParams,
+        result_row_model=AssetRow,
+        required_permission="mfg.maint.read",
+        max_rows=500,
+    ),
+    SemanticRequestSpec(
+        request_code="mfg.spc.series",
+        version="1",
+        namespace="mfg",
+        entity_code="inspection_result",
+        target_kind="function",
+        target_name="fac_qual.fn_semantic_spc_series",
+        params_model=SpcSeriesParams,
+        result_row_model=SpcSeriesRow,
         required_permission="mfg.quality.read",
         max_rows=500,
     ),

@@ -2,7 +2,7 @@
 
 GoliathApp specialization for manufacturing operations: work orders and signed travelers, QC inspections, lot traceability and genealogy, NCR/CAPA, inventory and purchasing, and maintenance. Initial targets are 10–50 person precision shops (AS9100, ISO 13485, ISO 9001) and food processors (FSMA 204) in Florida.
 
-Status: **Phase 3 quality and purchasing in development** — CAPA, gauge calibration, document control, FAI (AS9102), CoC export, accounting adapter stubs, and Factory purchasing UI against published GoliathApp `inv` shapes while [PR #34](https://github.com/Goliath-Research/GoliathApp/pull/34) remains open. Phase 2 pilot v1 (travelers, inspections, NCR, genealogy) is on `main`. See [`docs/phase3-status.md`](docs/phase3-status.md) and [`docs/plan.md`](docs/plan.md).
+Status: **Phase 4 maintenance and SPC in development** — assets and PM schedules, downtime logging, SPC control charts (X-bar/R, I-MR), CMM CSV import stub, and PM due DomainPrograms (dual activation). Phase 3 quality and purchasing is on `main`. See [`docs/phase4-status.md`](docs/phase4-status.md), [`docs/phase3-status.md`](docs/phase3-status.md), and [`docs/plan.md`](docs/plan.md).
 
 ## Layout
 
@@ -10,7 +10,9 @@ Status: **Phase 3 quality and purchasing in development** — CAPA, gauge calibr
 | --- | --- |
 | [`portal/`](portal/) | Tablet-friendly HTML views, `frames.json`, and `MfgPortal` API helpers |
 | [`docs/plan.md`](docs/plan.md) | Full plan: domain model, inventory, workflows, DomainPrograms, schema, roles, views, roadmap, decisions |
-| [`docs/phase3-status.md`](docs/phase3-status.md) | Phase 3 checklist vs plan |
+| [`docs/phase4-status.md`](docs/phase4-status.md) | Phase 4 checklist vs plan |
+| [`docs/cmm-import.md`](docs/cmm-import.md) | CMM import stub and incomplete edges |
+| [`domain_programs/README.md`](domain_programs/README.md) | PM due, SPC, and CMM DomainPrograms |
 | [`docs/accounting-adapters.md`](docs/accounting-adapters.md) | QBO / ERPNext adapter env vars |
 | [`src/goliath_factory/`](src/goliath_factory/) | Python package (semantic specs, actions, seed helpers) |
 | [`database/schema/`](database/schema/) | Ordered SQL apply scripts (views, RLS, semantic functions, NavTree) |

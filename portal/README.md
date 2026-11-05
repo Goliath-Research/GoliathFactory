@@ -16,6 +16,8 @@ Serve the `portal/` directory over HTTP and open `views/shell.html`, or load a f
 | `mfg.ncr.list_open` | NCR queue and MRB disposition |
 | `mfg.capa.list_open` | CAPA queue and close action |
 | `mfg.gauge.due_calibration` | Gauge calibration calendar |
+| `mfg.asset.pm_due` | PM due calendar |
+| `mfg.spc.series` | SPC control chart |
 | `mfg.document.list` | Controlled documents + change stubs |
 | `mfg.fai.by_work_order` | AS9102 first article |
 | `mfg.lot.genealogy` | Lot trace tree + CoC export |

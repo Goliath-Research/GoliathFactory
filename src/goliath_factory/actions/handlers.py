@@ -18,6 +18,12 @@ from goliath_factory.actions.models import (
     FaiApproveOutput,
     FaiStartInput,
     FaiStartOutput,
+    AssetPmCompleteInput,
+    AssetPmCompleteOutput,
+    CmmRegisterUploadInput,
+    CmmRegisterUploadOutput,
+    DowntimeLogInput,
+    DowntimeLogOutput,
     GaugeLockoutCheckInput,
     GaugeLockoutCheckOutput,
     InspectionResultRecordInput,
@@ -488,3 +494,90 @@ def handle_inv_issue_to_work_order(
         qty_on_hand=float(row[1]),
         genealogy_link_id=int(row[2]) if row[2] is not None else None,
     ).model_dump(mode="json")
+
+
+def handle_asset_pm_complete(
+    payload: dict[str, Any],
+    *,
+    context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    model = AssetPmCompleteInput.model_validate(payload)
+    user_id = _require_db_user(context)
+    checklist_json = json.dumps(model.checklist) if model.checklist else None
+    with connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT fac_maint.sp_pm_complete(%s, %s, %s, %s, %s::jsonb)
+                """,
+                (
+                    user_id,
+                    model.maintenance_order_id,
+                    model.signature_meaning,
+                    model.record_hash,
+                    checklist_json,
+                ),
+            )
+            next_due = _fetch_one(cur, "sp_pm_complete")[0]
+        conn.commit()
+    return AssetPmCompleteOutput(
+        maintenance_order_id=model.maintenance_order_id,
+        next_due_on=next_due,
+    ).model_dump(mode="json")
+
+
+def handle_downtime_log(
+    payload: dict[str, Any],
+    *,
+    context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    model = DowntimeLogInput.model_validate(payload)
+    user_id = _require_db_user(context)
+    with connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT fac_maint.sp_log_downtime(
+                  %s, %s, %s, %s, %s, %s, %s, %s
+                )
+                """,
+                (
+                    user_id,
+                    model.site_id,
+                    model.asset_id,
+                    model.work_center_id,
+                    model.started_at,
+                    model.ended_at,
+                    model.reason_code,
+                    model.comments,
+                ),
+            )
+            event_id = int(_fetch_one(cur, "sp_log_downtime")[0])
+        conn.commit()
+    return DowntimeLogOutput(downtime_event_id=event_id).model_dump(mode="json")
+
+
+def handle_cmm_register_upload(
+    payload: dict[str, Any],
+    *,
+    context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    model = CmmRegisterUploadInput.model_validate(payload)
+    user_id = _require_db_user(context)
+    with connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT fac_qual.sp_register_cmm_upload(%s, %s, %s, %s, %s)
+                """,
+                (
+                    user_id,
+                    model.site_id,
+                    model.source_filename,
+                    model.format,
+                    model.storage_ref,
+                ),
+            )
+            batch_id = int(_fetch_one(cur, "sp_register_cmm_upload")[0])
+        conn.commit()
+    return CmmRegisterUploadOutput(batch_id=batch_id, status="pending").model_dump(mode="json")

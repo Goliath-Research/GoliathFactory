@@ -89,6 +89,12 @@ BEGIN
     v_root_id, 'Gauges', 28, 'mfg_gauges', 'mfg.gauge.due_calibration'
   );
   PERFORM fac_eng.sp_register_mfg_nav_child(
+    v_root_id, 'Maintenance', 29, 'mfg_maintenance', 'mfg.asset.pm_due'
+  );
+  PERFORM fac_eng.sp_register_mfg_nav_child(
+    v_quality_id, 'SPC', 35, 'mfg_spc', 'mfg.spc.series'
+  );
+  PERFORM fac_eng.sp_register_mfg_nav_child(
     v_root_id, 'Traceability', 30, 'mfg_traceability', 'mfg.lot.genealogy'
   );
   PERFORM fac_eng.sp_register_mfg_nav_child(

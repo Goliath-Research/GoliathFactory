@@ -9,6 +9,8 @@
     "mfg.ncr.list_open": { "view": "views/ncr.html", "title": "NCR / CAPA" },
     "mfg.capa.list_open": { "view": "views/capa.html", "title": "CAPA" },
     "mfg.gauge.due_calibration": { "view": "views/gauges.html", "title": "Gauges" },
+    "mfg.asset.pm_due": { "view": "views/maintenance.html", "title": "Maintenance" },
+    "mfg.spc.series": { "view": "views/spc.html", "title": "SPC" },
     "mfg.document.list": { "view": "views/documents.html", "title": "Document control" },
     "mfg.fai.by_work_order": { "view": "views/fai.html", "title": "First article" },
     "mfg.lot.genealogy": { "view": "views/genealogy.html", "title": "Lot genealogy" },

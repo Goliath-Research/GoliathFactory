@@ -1,5 +1,168 @@
 {
   "entities": {
+    "mfg.asset": {
+      "attributes": [
+        {
+          "code": "asset_id",
+          "column_name": "asset_id",
+          "filterable_ops": [],
+          "json_type": "integer",
+          "role": "key"
+        },
+        {
+          "code": "site_id",
+          "column_name": "site_id",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "integer",
+          "role": "filter"
+        },
+        {
+          "code": "asset_tag",
+          "column_name": "asset_tag",
+          "filterable_ops": [
+            "eq",
+            "ilike"
+          ],
+          "json_type": "string",
+          "role": "label"
+        },
+        {
+          "code": "next_due_on",
+          "column_name": "next_due_on",
+          "filterable_ops": [
+            "lte",
+            "gte"
+          ],
+          "json_type": "date",
+          "role": "attribute"
+        },
+        {
+          "code": "status",
+          "column_name": "status",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "string",
+          "role": "attribute"
+        }
+      ],
+      "catalog_type_name": null,
+      "code": "asset",
+      "content_hash": "fb30ba281ac956a00c0e7b35439165a3cc49916ac346504f29913d2489c9ed2c",
+      "description": "Shop asset with PM schedule, next due date, and recent downtime.",
+      "display_name": "Maintenance asset",
+      "meta_class_id": null,
+      "meta_class_name": null,
+      "namespace": "mfg",
+      "row_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "asset_id": {
+            "title": "Asset Id",
+            "type": "integer"
+          },
+          "asset_tag": {
+            "title": "Asset Tag",
+            "type": "string"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "downtime_hours_30d": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Downtime Hours 30D"
+          },
+          "interval_days": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Interval Days"
+          },
+          "next_due_on": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Next Due On"
+          },
+          "pm_schedule_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Pm Schedule Name"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "work_center_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Work Center Code"
+          }
+        },
+        "required": [
+          "asset_id",
+          "site_id",
+          "asset_tag",
+          "status"
+        ],
+        "title": "AssetRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_asset_row",
+      "schema_id": "goliath.semantic/mfg/asset/1",
+      "schema_version": "1",
+      "storage_relation": "fac_maint.v_asset"
+    },
     "mfg.capa": {
       "attributes": [
         {
@@ -1839,6 +2002,142 @@
     }
   },
   "requests": {
+    "mfg.asset.pm_due": {
+      "base_namespace": null,
+      "content_hash": "94ddb3bb28ef82082d4793e41f79cd1a9966f7cf9d217fa2c5473109df8bce80",
+      "entity_code": "asset",
+      "filter_template": null,
+      "max_rows": 500,
+      "namespace": "mfg",
+      "params_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "within_days": {
+            "default": 30,
+            "title": "Within Days",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "site_id"
+        ],
+        "title": "AssetPmDueParams",
+        "type": "object"
+      },
+      "request_code": "mfg.asset.pm_due",
+      "required_permission": "mfg.maint.read",
+      "result_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "asset_id": {
+            "title": "Asset Id",
+            "type": "integer"
+          },
+          "asset_tag": {
+            "title": "Asset Tag",
+            "type": "string"
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Description"
+          },
+          "downtime_hours_30d": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Downtime Hours 30D"
+          },
+          "interval_days": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Interval Days"
+          },
+          "next_due_on": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Next Due On"
+          },
+          "pm_schedule_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Pm Schedule Name"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "work_center_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Work Center Code"
+          }
+        },
+        "required": [
+          "asset_id",
+          "site_id",
+          "asset_tag",
+          "status"
+        ],
+        "title": "AssetRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_asset_row",
+      "schema_id": "goliath.semantic/mfg/mfg.asset.pm_due/1",
+      "target_kind": "function",
+      "target_name": "fac_maint.fn_semantic_asset_pm_due",
+      "version": "1"
+    },
     "mfg.audit.by_entity": {
       "base_namespace": null,
       "content_hash": "e3adaf8ddc1c48a80472e0ded89017ef4a4b6452e3277fea622a04eb798983d9",
@@ -2950,6 +3249,155 @@
       "schema_id": "goliath.semantic/mfg/mfg.ncr.list_open/1",
       "target_kind": "function",
       "target_name": "fac_qual.fn_semantic_ncr_list_open",
+      "version": "1"
+    },
+    "mfg.spc.series": {
+      "base_namespace": null,
+      "content_hash": "a0e27bd43664eb80084e618404c9049a42fe9ed160ce7dcba1e690a6272b7d12",
+      "entity_code": "inspection_result",
+      "filter_template": null,
+      "max_rows": 500,
+      "namespace": "mfg",
+      "params_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "characteristic_id": {
+            "title": "Characteristic Id",
+            "type": "integer"
+          },
+          "chart_type": {
+            "default": "xbar_r",
+            "enum": [
+              "xbar_r",
+              "imr"
+            ],
+            "title": "Chart Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "characteristic_id"
+        ],
+        "title": "SpcSeriesParams",
+        "type": "object"
+      },
+      "request_code": "mfg.spc.series",
+      "required_permission": "mfg.quality.read",
+      "result_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "center_line": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Center Line"
+          },
+          "characteristic_code": {
+            "title": "Characteristic Code",
+            "type": "string"
+          },
+          "characteristic_id": {
+            "title": "Characteristic Id",
+            "type": "integer"
+          },
+          "chart_type": {
+            "title": "Chart Type",
+            "type": "string"
+          },
+          "lcl": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Lcl"
+          },
+          "point_index": {
+            "title": "Point Index",
+            "type": "integer"
+          },
+          "primary_value": {
+            "title": "Primary Value",
+            "type": "number"
+          },
+          "rule_violations": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Rule Violations"
+          },
+          "secondary_value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Secondary Value"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "subgroup_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subgroup Label"
+          },
+          "ucl": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Ucl"
+          }
+        },
+        "required": [
+          "characteristic_id",
+          "characteristic_code",
+          "site_id",
+          "chart_type",
+          "point_index",
+          "primary_value"
+        ],
+        "title": "SpcSeriesRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_spc_series_row",
+      "schema_id": "goliath.semantic/mfg/mfg.spc.series/1",
+      "target_kind": "function",
+      "target_name": "fac_qual.fn_semantic_spc_series",
       "version": "1"
     },
     "mfg.traveler_step.by_work_order": {

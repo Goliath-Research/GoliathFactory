@@ -734,6 +734,66 @@ BEGIN
     );
   END IF;
 END $$;
+
+DO $$
+DECLARE
+  v_typname constant text := 'mfg_asset_row';
+  v_desired text[] := ARRAY['asset_id', 'site_id', 'asset_tag', 'description', 'work_center_code', 'pm_schedule_name', 'next_due_on', 'interval_days', 'downtime_hours_30d', 'status'];
+  v_desired_types text[] := ARRAY['integer', 'integer', 'text', 'text', 'text', 'text', 'text', 'integer', 'double precision', 'text'];
+  v_existing text[];
+  v_i int;
+BEGIN
+  SELECT array_agg(a.attname ORDER BY a.attnum)
+  INTO v_existing
+  FROM pg_type t
+  JOIN pg_namespace n ON n.oid = t.typnamespace
+  JOIN pg_class c ON c.oid = t.typrelid
+  JOIN pg_attribute a ON a.attrelid = c.oid AND a.attnum > 0 AND NOT a.attisdropped
+  WHERE n.nspname = 'portal' AND t.typname = v_typname AND t.typtype = 'c';
+
+  IF v_existing IS NULL THEN
+    CREATE TYPE portal.mfg_asset_row AS (
+  asset_id integer,
+  site_id integer,
+  asset_tag text,
+  description text,
+  work_center_code text,
+  pm_schedule_name text,
+  next_due_on text,
+  interval_days integer,
+  downtime_hours_30d double precision,
+  status text
+    );
+  ELSIF v_existing = v_desired THEN
+    NULL;
+  ELSIF coalesce(array_length(v_existing, 1), 0) < array_length(v_desired, 1)
+        AND v_existing = v_desired[1:array_length(v_existing, 1)] THEN
+    FOR v_i IN array_length(v_existing, 1) + 1 .. array_length(v_desired, 1) LOOP
+      BEGIN
+        EXECUTE format(
+          'ALTER TYPE portal.%I ADD ATTRIBUTE %I %s',
+          v_typname, v_desired[v_i], v_desired_types[v_i]
+        );
+      EXCEPTION
+        WHEN duplicate_column THEN NULL;
+      END;
+    END LOOP;
+  ELSE
+    DROP TYPE IF EXISTS portal.mfg_asset_row CASCADE;
+    CREATE TYPE portal.mfg_asset_row AS (
+  asset_id integer,
+  site_id integer,
+  asset_tag text,
+  description text,
+  work_center_code text,
+  pm_schedule_name text,
+  next_due_on text,
+  interval_days integer,
+  downtime_hours_30d double precision,
+  status text
+    );
+  END IF;
+END $$;
 DO $$
 BEGIN
   IF NOT EXISTS (
@@ -771,6 +831,30 @@ BEGIN
   signature_meaning text,
   record_hash text,
   created_at timestamptz
+    );
+  END IF;
+END $$;
+
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_type t
+    JOIN pg_namespace n ON n.oid = t.typnamespace
+    WHERE n.nspname = 'portal' AND t.typname = 'mfg_spc_series_row'
+  ) THEN
+    CREATE TYPE portal.mfg_spc_series_row AS (
+  characteristic_id integer,
+  characteristic_code text,
+  site_id integer,
+  chart_type text,
+  point_index integer,
+  subgroup_label text,
+  primary_value double precision,
+  secondary_value double precision,
+  center_line double precision,
+  ucl double precision,
+  lcl double precision,
+  rule_violations text
     );
   END IF;
 END $$;
