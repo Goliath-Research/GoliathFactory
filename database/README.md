@@ -24,6 +24,10 @@ Scripts under `database/schema/` are idempotent (`CREATE IF NOT EXISTS`, `CREATE
 | `fac_prod` | Work orders, travelers, traveler steps |
 | `fac_trace` | Lots, lot links (genealogy), `fn_genealogy` |
 
-Semantic **views** (`v_*`) back `storage_relation` on entities. Named reads use **functions** scoped to the session user (organization membership and site). Phase 1 registers work-order list, traveler steps by work order, and lot genealogy.
+| `fac_qual` | Inspection plans, characteristics, results, NCR, MRB disposition |
+| `fac_audit` | Append-only `audit_log`; e-sign columns on traveler steps |
+| `fac_inv_hooks` | Receive/issue stubs until GoliathApp `inv` module |
+
+Semantic **views** (`v_*`) back `storage_relation` on entities. Named reads use **functions** scoped to the session user (organization membership and site). Phase 1 registers work-order list, traveler steps by work order, and lot genealogy. Phase 2 adds quality reads, audit-by-entity, and write procs in `09_fac_mfg_api.sql` for portal actions.
 
 **Inventory:** item master, stock, and purchasing live in the GoliathApp `inv` module (built in parallel). GoliathFactory does not define an `inv` schema here; enable inventory NavTree nodes from the platform module when deployed.

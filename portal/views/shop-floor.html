@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Factory · Shop floor</title>
+    <link rel="stylesheet" href="../static/mfg-shell.css" />
+  </head>
+  <body>
+    <h1>Shop floor traveler</h1>
+    <div class="mfg-toolbar no-print">
+      <label>
+        Work order ID
+        <input id="workOrderId" type="number" value="101" />
+      </label>
+      <button type="button" class="secondary" id="loadBtn">Load steps</button>
+    </div>
+    <ul class="mfg-list" id="stepList"></ul>
+    <div class="mfg-card no-print" id="activePanel" hidden>
+      <h2 id="activeTitle">Current step</h2>
+      <p class="mfg-muted" id="activeMeta"></p>
+      <form id="signForm" class="mfg-form-grid">
+        <label>
+          Qty good
+          <input name="qty_good" type="number" step="any" required value="25" />
+        </label>
+        <label>
+          Qty scrap
+          <input name="qty_scrap" type="number" step="any" value="0" />
+        </label>
+        <label>
+          Machine
+          <input name="machine" type="text" placeholder="VMC-03" />
+        </label>
+        <label>
+          Signature meaning
+          <input name="signature_meaning" type="text" value="Operation complete" required />
+        </label>
+        <button type="button" class="secondary" id="startBtn">Start operation</button>
+        <button class="primary" type="submit">Sign off step</button>
+      </form>
+    </div>
+    <p class="mfg-status" id="status"></p>
+    <script src="../static/mfg-api.js"></script>
+    <script>
+      const status = document.getElementById("status");
+      const stepList = document.getElementById("stepList");
+      const activePanel = document.getElementById("activePanel");
+      let steps = [];
+      let activeStep = null;
+
+      function pickActive(rows) {
+        return rows.find((s) => s.status === "in_progress") || rows.find((s) => s.status === "pending");
+      }
+
+      function renderSteps() {
+        stepList.innerHTML = steps
+          .map(
+            (s) =>
+              `<li class="${s.traveler_step_id === activeStep?.traveler_step_id ? "mfg-step-active" : ""}">
+                <strong>Op ${s.seq}: ${s.operation_code}</strong>
+                <span class="mfg-badge">${s.status}</span>
+                <div class="mfg-muted">Step #${s.traveler_step_id}${s.machine ? " · " + s.machine : ""}</div>
+              </li>`
+          )
+          .join("");
+        if (!activeStep) {
+          activePanel.hidden = true;
+          return;
+        }
+        activePanel.hidden = false;
+        document.getElementById("activeTitle").textContent = `Op ${activeStep.seq}: ${activeStep.operation_code}`;
+        document.getElementById("activeMeta").textContent = `Step ${activeStep.traveler_step_id} · ${activeStep.status}`;
+      }
+
+      async function loadSteps() {
+        const workOrderId = Number(document.getElementById("workOrderId").value);
+        steps = await MfgPortal.runSemanticRequest("mfg.traveler_step.by_work_order", {
+          work_order_id: workOrderId,
+        });
+        activeStep = pickActive(steps);
+        renderSteps();
+      }
+
+      document.getElementById("loadBtn").addEventListener("click", () => {
+        loadSteps().catch((err) => MfgPortal.setStatus(status, err.message, true));
+      });
+
+      document.getElementById("startBtn").addEventListener("click", async () => {
+        if (!activeStep) return;
+        try {
+          const data = new FormData(document.getElementById("signForm"));
+          await MfgPortal.runAction("mfg.traveler_step.start", {
+            traveler_step_id: activeStep.traveler_step_id,
+            machine: String(data.get("machine") || "") || null,
+          });
+          MfgPortal.setStatus(status, "Operation started");
+          await loadSteps();
+        } catch (err) {
+          MfgPortal.setStatus(status, err.message, true);
+        }
+      });
+
+      document.getElementById("signForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        if (!activeStep) return;
+        const data = new FormData(event.target);
+        try {
+          await MfgPortal.runAction("mfg.traveler_step.sign_off", {
+            traveler_step_id: activeStep.traveler_step_id,
+            qty_good: Number(data.get("qty_good")),
+            qty_scrap: Number(data.get("qty_scrap") || 0),
+            machine: String(data.get("machine") || "") || null,
+            signature_meaning: String(data.get("signature_meaning")),
+          });
+          MfgPortal.setStatus(status, "Step signed off");
+          await loadSteps();
+        } catch (err) {
+          MfgPortal.setStatus(status, err.message, true);
+        }
+      });
+
+      const wo = MfgPortal.queryParam("work_order_id");
+      if (wo) document.getElementById("workOrderId").value = wo;
+      loadSteps().catch((err) => MfgPortal.setStatus(status, err.message, true));
+    </script>
+  </body>
+</html>

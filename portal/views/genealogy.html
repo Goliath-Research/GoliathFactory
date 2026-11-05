@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Factory · Genealogy</title>
+    <link rel="stylesheet" href="../static/mfg-shell.css" />
+  </head>
+  <body>
+    <h1>Lot genealogy</h1>
+    <div class="mfg-toolbar">
+      <label>Lot ID <input id="lotId" type="number" value="200" /></label>
+      <label>
+        Direction
+        <select id="direction">
+          <option value="forward">Forward</option>
+          <option value="backward">Backward</option>
+        </select>
+      </label>
+      <button type="button" class="secondary" id="loadBtn">Trace</button>
+      <button type="button" class="primary" id="cocBtn">CoC stub</button>
+    </div>
+    <ul class="mfg-list" id="tree"></ul>
+    <pre class="mfg-card" id="cocOut" hidden></pre>
+    <p class="mfg-status" id="status"></p>
+    <script src="../static/mfg-api.js"></script>
+    <script>
+      const status = document.getElementById("status");
+      const tree = document.getElementById("tree");
+
+      async function loadTree() {
+        const lotId = Number(document.getElementById("lotId").value);
+        const direction = document.getElementById("direction").value;
+        const rows = await MfgPortal.runSemanticRequest("mfg.lot.genealogy", { lot_id: lotId, direction });
+        tree.innerHTML = rows
+          .map(
+            (r) =>
+              `<li style="padding-left:${r.depth * 12}px">
+                <strong>${r.lot_number}</strong> <span class="mfg-muted">${r.kind}</span>
+                ${r.link_kind ? `<div class="mfg-muted">${r.link_kind} ← ${r.related_lot_number || ""}</div>` : ""}
+              </li>`
+          )
+          .join("");
+      }
+
+      document.getElementById("loadBtn").addEventListener("click", () => {
+        loadTree().catch((err) => MfgPortal.setStatus(status, err.message, true));
+      });
+
+      document.getElementById("cocBtn").addEventListener("click", async () => {
+        const lotId = Number(document.getElementById("lotId").value);
+        try {
+          const out = await MfgPortal.runAction("mfg.lot.coc_generate", { lot_id: lotId });
+          const pre = document.getElementById("cocOut");
+          pre.hidden = false;
+          pre.textContent = JSON.stringify(out.document || out, null, 2);
+          MfgPortal.setStatus(status, "CoC stub generated");
+        } catch (err) {
+          MfgPortal.setStatus(status, err.message, true);
+        }
+      });
+
+      loadTree().catch((err) => MfgPortal.setStatus(status, err.message, true));
+    </script>
+  </body>
+</html>

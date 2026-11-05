@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Factory · Work orders</title>
+    <link rel="stylesheet" href="../static/mfg-shell.css" />
+  </head>
+  <body>
+    <h1>Work orders</h1>
+    <ul class="mfg-list" id="woList"></ul>
+    <p class="mfg-status" id="status"></p>
+    <script src="../static/mfg-api.js"></script>
+    <script>
+      const status = document.getElementById("status");
+      const list = document.getElementById("woList");
+
+      async function refresh() {
+        const rows = await MfgPortal.runSemanticRequest("mfg.work_order.list_open", {
+          site_id: MfgPortal.siteId(),
+        });
+        list.innerHTML = rows
+          .map(
+            (wo) =>
+              `<li>
+                <strong>${wo.part_number} rev ${wo.part_revision || ""}</strong>
+                <span class="mfg-badge">${wo.status}</span>
+                <div class="mfg-muted">WO ${wo.work_order_id} · qty ${wo.quantity}</div>
+                <button class="secondary no-print" data-release="${wo.work_order_id}" type="button">Release</button>
+                <a class="mfg-muted" href="shop-floor.html?work_order_id=${wo.work_order_id}">Open traveler →</a>
+              </li>`
+          )
+          .join("");
+        list.querySelectorAll("[data-release]").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            try {
+              await MfgPortal.runAction("mfg.work_order.release", {
+                work_order_id: Number(btn.getAttribute("data-release")),
+              });
+              MfgPortal.setStatus(status, "Work order released");
+              await refresh();
+            } catch (err) {
+              MfgPortal.setStatus(status, err.message, true);
+            }
+          });
+        });
+      }
+
+      refresh().catch((err) => MfgPortal.setStatus(status, err.message, true));
+    </script>
+  </body>
+</html>

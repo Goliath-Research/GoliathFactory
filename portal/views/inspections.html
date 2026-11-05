@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Factory · Inspections</title>
+    <link rel="stylesheet" href="../static/mfg-shell.css" />
+  </head>
+  <body>
+    <h1>Inspection entry</h1>
+    <div class="mfg-toolbar">
+      <label>
+        Lot ID
+        <input id="lotId" type="number" value="200" />
+      </label>
+      <label>
+        Part revision ID (plan)
+        <input id="partRevisionId" type="number" value="1" />
+      </label>
+      <button type="button" class="secondary" id="loadBtn">Load</button>
+    </div>
+    <ul class="mfg-list" id="resultList"></ul>
+    <div class="mfg-card">
+      <h2>Record measurement</h2>
+      <form id="inspForm" class="mfg-form-grid">
+        <label>
+          Characteristic ID
+          <input name="characteristic_id" type="number" required />
+        </label>
+        <label>
+          Measured value
+          <input name="measured_value" type="number" step="any" required />
+        </label>
+        <label>
+          Pass / fail
+          <select name="pass_fail">
+            <option value="pass">Pass</option>
+            <option value="fail">Fail</option>
+          </select>
+        </label>
+        <label>
+          Signature meaning
+          <input name="signature_meaning" type="text" value="Inspection recorded" required />
+        </label>
+        <button class="primary" type="submit">Record result</button>
+      </form>
+    </div>
+    <p class="mfg-status" id="status"></p>
+    <script src="../static/mfg-api.js"></script>
+    <script>
+      const status = document.getElementById("status");
+      const resultList = document.getElementById("resultList");
+
+      async function load() {
+        const lotId = Number(document.getElementById("lotId").value);
+        const partRevisionId = Number(document.getElementById("partRevisionId").value);
+        const plan = await MfgPortal.runSemanticRequest("mfg.inspection_plan.by_part", {
+          site_id: MfgPortal.siteId(),
+          part_revision_id: partRevisionId,
+        });
+        if (plan.length && plan[0].characteristic_id) {
+          document.querySelector('[name="characteristic_id"]').value = plan[0].characteristic_id;
+        }
+        const results = await MfgPortal.runSemanticRequest("mfg.inspection_result.by_lot", { lot_id: lotId });
+        resultList.innerHTML = results
+          .map(
+            (r) =>
+              `<li><strong>${r.characteristic_code}</strong>
+              <span class="mfg-badge ${r.pass_fail === "pass" ? "ok" : "fail"}">${r.pass_fail}</span>
+              <div class="mfg-muted">${r.measured_value ?? "—"} · ${r.recorded_at ? new Date(r.recorded_at).toLocaleString() : ""}</div></li>`
+          )
+          .join("");
+      }
+
+      document.getElementById("loadBtn").addEventListener("click", () => {
+        load().catch((err) => MfgPortal.setStatus(status, err.message, true));
+      });
+
+      document.getElementById("inspForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const data = new FormData(event.target);
+        const lotId = Number(document.getElementById("lotId").value);
+        try {
+          await MfgPortal.runAction("mfg.inspection_result.record", {
+            characteristic_id: Number(data.get("characteristic_id")),
+            lot_id: lotId,
+            measured_value: Number(data.get("measured_value")),
+            pass_fail: String(data.get("pass_fail")),
+            signature_meaning: String(data.get("signature_meaning")),
+          });
+          MfgPortal.setStatus(status, "Inspection recorded");
+          await load();
+        } catch (err) {
+          MfgPortal.setStatus(status, err.message, true);
+        }
+      });
+
+      load().catch((err) => MfgPortal.setStatus(status, err.message, true));
+    </script>
+  </body>
+</html>

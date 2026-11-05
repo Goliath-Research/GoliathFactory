@@ -82,6 +82,10 @@ RETURNS TABLE (
   qty_good numeric,
   qty_scrap numeric,
   signed_at timestamptz,
+  started_at timestamptz,
+  signer_user_id integer,
+  signature_meaning text,
+  record_hash text,
   site_id integer
 )
 LANGUAGE plpgsql
@@ -120,6 +124,10 @@ BEGIN
     v.qty_good,
     v.qty_scrap,
     v.signed_at,
+    v.started_at,
+    v.signer_user_id,
+    v.signature_meaning,
+    v.record_hash,
     v.site_id
   FROM fac_prod.v_traveler_step v
   WHERE v.work_order_id = v_work_order_id

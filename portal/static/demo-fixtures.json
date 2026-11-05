@@ -1,0 +1,80 @@
+{
+  "mfg.work_order.list_open": [
+    {
+      "work_order_id": 101,
+      "site_id": 1,
+      "part_number": "BRG-100",
+      "part_revision": "C",
+      "quantity": 25,
+      "status": "released",
+      "due_date": "2026-11-15"
+    }
+  ],
+  "mfg.traveler_step.by_work_order": [
+    {
+      "traveler_step_id": 1001,
+      "work_order_id": 101,
+      "seq": 10,
+      "operation_code": "MILL-1",
+      "status": "in_progress",
+      "qty_good": null,
+      "machine": "VMC-03"
+    },
+    {
+      "traveler_step_id": 1002,
+      "work_order_id": 101,
+      "seq": 20,
+      "operation_code": "DEBUR",
+      "status": "pending",
+      "qty_good": null,
+      "machine": null
+    }
+  ],
+  "mfg.inspection_plan.by_part": [
+    {
+      "inspection_plan_id": 1,
+      "characteristic_id": 11,
+      "characteristic_code": "DIA-01",
+      "description": "Bore diameter",
+      "nominal": 25.4,
+      "tolerance_plus": 0.05,
+      "tolerance_minus": 0.05,
+      "unit": "mm"
+    }
+  ],
+  "mfg.inspection_result.by_lot": [
+    {
+      "inspection_result_id": 501,
+      "characteristic_code": "DIA-01",
+      "pass_fail": "pass",
+      "measured_value": 25.42,
+      "recorded_at": "2026-11-05T08:00:00Z"
+    }
+  ],
+  "mfg.ncr.list_open": [
+    {
+      "ncr_id": 77,
+      "defect_code": "DIM-OOS",
+      "description": "Bore 0.08 mm over nominal",
+      "status": "open",
+      "lot_number": "LOT-2026-1105-A"
+    }
+  ],
+  "mfg.lot.genealogy": [
+    {
+      "lot_id": 200,
+      "lot_number": "LOT-2026-1105-A",
+      "depth": 0,
+      "direction": "forward",
+      "link_kind": null
+    },
+    {
+      "lot_id": 150,
+      "lot_number": "HEAT-88421",
+      "depth": 1,
+      "direction": "forward",
+      "link_kind": "consume",
+      "related_lot_number": "LOT-2026-1105-A"
+    }
+  ]
+}
