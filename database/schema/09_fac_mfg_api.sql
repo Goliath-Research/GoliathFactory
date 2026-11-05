@@ -82,6 +82,16 @@ BEGIN
   WHERE NOT EXISTS (
     SELECT 1 FROM fac_prod.travelers t WHERE t.work_order_id = p_work_order_id
   );
+  INSERT INTO fac_prod.traveler_steps (traveler_id, routing_operation_id, seq, operation_code)
+  SELECT t.id, ro.id, ro.seq, ro.operation_code
+  FROM fac_prod.travelers t
+  JOIN fac_prod.work_orders wo ON wo.id = t.work_order_id
+  JOIN fac_eng.routing_operations ro ON ro.routing_id = wo.routing_id
+  WHERE t.work_order_id = p_work_order_id
+    AND wo.routing_id IS NOT NULL
+    AND NOT EXISTS (
+      SELECT 1 FROM fac_prod.traveler_steps ts WHERE ts.traveler_id = t.id
+    );
   PERFORM fac_audit.sp_append(
     v_site_id,
     'work_order',
@@ -184,7 +194,7 @@ BEGIN
   v_signed := now();
   v_hash := COALESCE(
     p_record_hash,
-    encode(digest(
+    encode(public.digest(
       p_traveler_step_id::text || '|' || p_qty_good::text || '|' || v_signed::text,
       'sha256'
     ), 'hex')
@@ -276,7 +286,7 @@ BEGIN
   RETURNING id INTO v_result_id;
   v_hash := COALESCE(
     p_record_hash,
-    encode(digest(v_result_id::text || '|' || v_pass, 'sha256'), 'hex')
+    encode(public.digest(v_result_id::text || '|' || v_pass, 'sha256'), 'hex')
   );
   PERFORM fac_audit.sp_append(
     v_site_id,
@@ -390,7 +400,7 @@ BEGIN
   PERFORM set_config('goliath.mfg.user_id', p_user_id::text, true);
   v_hash := COALESCE(
     p_record_hash,
-    encode(digest(p_ncr_id::text || '|' || p_disposition, 'sha256'), 'hex')
+    encode(public.digest(p_ncr_id::text || '|' || p_disposition, 'sha256'), 'hex')
   );
   INSERT INTO fac_qual.mrb_dispositions (
     ncr_id,
@@ -458,7 +468,7 @@ BEGIN
     'mfg.lot.coc_generate',
     p_user_id,
     'Generate CoC (stub)',
-    encode(digest(v_doc::text, 'sha256'), 'hex'),
+    encode(public.digest(v_doc::text, 'sha256'), 'hex'),
     v_doc
   );
   RETURN v_doc;

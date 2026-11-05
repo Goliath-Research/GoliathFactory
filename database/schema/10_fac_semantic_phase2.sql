@@ -250,6 +250,7 @@ BEGIN
   WHERE a.entity_type = v_entity_type
     AND a.entity_id = v_entity_id
     AND (v_site_id IS NULL OR a.site_id = v_site_id)
+    AND fac_eng.fn_user_can_access_site(p_user_id, a.site_id)
   ORDER BY a.created_at DESC, a.id DESC
   LIMIT v_lim;
 END;
