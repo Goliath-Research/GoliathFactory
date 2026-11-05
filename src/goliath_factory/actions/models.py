@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import date
 from typing import Any, Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -123,34 +124,107 @@ class LotCocGenerateOutput(BaseModel):
     document: dict[str, Any]
 
 
-class InvReceiveStubInput(BaseModel):
+class InvIssueToWorkOrderInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    site_id: int
-    item_ref: str
+    organization_id: int
+    work_order_id: int
+    stock_lot_id: int
     quantity: float
-    lot_number: str | None = None
 
 
-class InvReceiveStubOutput(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    status: str
-    dependency: str
-    detail: dict[str, Any]
-
-
-class InvIssueToWorkOrderStubInput(BaseModel):
+class InvIssueToWorkOrderOutput(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     work_order_id: int
-    stock_lot_ref: str
-    quantity: float
+    stock_move_id: int
+    qty_on_hand: float
+    genealogy_link_id: int | None = None
 
 
-class InvIssueToWorkOrderStubOutput(BaseModel):
+class CapaCloseInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
+    capa_id: int
+    effectiveness_notes: str
+    signature_meaning: str = Field(default="CAPA closed — effectiveness verified")
+    record_hash: str | None = None
+
+
+class CapaCloseOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    capa_id: int
     status: str
-    dependency: str
-    detail: dict[str, Any]
+
+
+class GaugeLockoutCheckInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    gauge_id: int
+
+
+class GaugeLockoutCheckOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    gauge_id: int
+    locked_out: bool
+
+
+class DocumentSubmitReviewInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    revision_id: int
+    change_summary: str | None = None
+
+
+class DocumentSubmitReviewOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    revision_id: int
+    status: str
+
+
+class DocumentApproveInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    revision_id: int
+    signature_meaning: str = Field(default="Controlled document approved")
+    record_hash: str | None = None
+    effective_on: date | None = None
+
+
+class DocumentApproveOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    revision_id: int
+    status: str
+
+
+class FaiStartInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    work_order_id: int
+    inspection_plan_id: int | None = None
+
+
+class FaiStartOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    first_article_id: int
+    status: str
+
+
+class FaiApproveInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    first_article_id: int
+    signature_meaning: str = Field(default="First article approved — run released")
+    record_hash: str | None = None
+
+
+class FaiApproveOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    first_article_id: int
+    status: str

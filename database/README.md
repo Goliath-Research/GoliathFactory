@@ -22,12 +22,14 @@ Scripts under `database/schema/` are idempotent (`CREATE IF NOT EXISTS`, `CREATE
 | --- | --- |
 | `fac_eng` | Sites, parts, part revisions, routings, routing operations, work centers |
 | `fac_prod` | Work orders, travelers, traveler steps |
-| `fac_trace` | Lots, lot links (genealogy), `fn_genealogy` |
-
-| `fac_qual` | Inspection plans, characteristics, results, NCR, MRB disposition |
+| `fac_qual` | Inspection, NCR, CAPA, first article |
+| `fac_gauge` | Gauges and calibrations |
+| `fac_doc` | Controlled documents and revision workflow stubs |
+| `fac_trace` | Lots, genealogy, certificates of conformance |
 | `fac_audit` | Append-only `audit_log`; e-sign columns on traveler steps |
-| `fac_inv_hooks` | Receive/issue stubs until GoliathApp `inv` module |
+| `fac_mfg_inv` | `inv` receive/issue wrappers + stock-lot → trace-lot map |
+| `fac_inv_hooks` | Legacy Phase 2 stubs (superseded by `fac_mfg_inv`) |
 
-Semantic **views** (`v_*`) back `storage_relation` on entities. Named reads use **functions** scoped to the session user (organization membership and site). Phase 1 registers work-order list, traveler steps by work order, and lot genealogy. Phase 2 adds quality reads, audit-by-entity, and write procs in `09_fac_mfg_api.sql` for portal actions.
+Phase 3 adds `11`–`17` schema scripts (CAPA, gauge, doc, FAI, CoC, APIs, semantic reads). Semantic **views** (`v_*`) back `storage_relation` on entities. Named reads use **functions** scoped to the session user (organization membership and site).
 
 **Inventory:** item master, stock, and purchasing live in the GoliathApp `inv` module (built in parallel). GoliathFactory does not define an `inv` schema here; enable inventory NavTree nodes from the platform module when deployed.

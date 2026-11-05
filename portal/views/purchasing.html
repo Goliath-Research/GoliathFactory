@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Factory · Inventory</title>
+    <link rel="stylesheet" href="../static/mfg-shell.css" />
+  </head>
+  <body>
+    <h1>Inventory &amp; purchasing</h1>
+    <p>
+      GoliathApp <code>inv</code> module on platform <code>main</code> (merge <code>1a0fe26</code>): ASL,
+      price breaks, reorder points, cycle counts, and moving-average costing. Factory overrides
+      <code>inv.stock.receive</code> / <code>inv.stock.issue</code> for traceability.
+    </p>
+    <h2>Items</h2>
+    <ul class="mfg-list" id="itemList"></ul>
+    <h2>Purchase orders</h2>
+    <ul class="mfg-list" id="poList"></ul>
+    <h2>Approved supplier items (ASL catalog)</h2>
+    <ul class="mfg-list" id="supplierList"></ul>
+    <div class="mfg-card">
+      <h2>Issue to work order</h2>
+      <form id="issueForm" class="mfg-form-grid">
+        <label>Work order ID <input name="work_order_id" type="number" required value="101" /></label>
+        <label>Stock lot ID <input name="stock_lot_id" type="number" required value="1" /></label>
+        <label>Quantity <input name="quantity" type="number" step="any" required value="1" /></label>
+        <button class="primary" type="submit">Issue</button>
+      </form>
+    </div>
+    <div class="mfg-card">
+      <h2>Cycle count adjustment</h2>
+      <form id="adjustForm" class="mfg-form-grid">
+        <label>Stock lot ID <input name="stock_lot_id" type="number" required /></label>
+        <label>Qty delta (+ / −) <input name="qty_delta" type="number" step="any" required /></label>
+        <label>Reason <input name="reason_code" required value="cycle_count" /></label>
+        <button type="submit">Post adjustment</button>
+      </form>
+    </div>
+    <p class="mfg-status" id="status"></p>
+    <script src="../static/mfg-api.js"></script>
+    <script>
+      const status = document.getElementById("status");
+
+      async function loadInv() {
+        const orgId = MfgPortal.organizationId();
+        const items = await MfgPortal.runSemanticRequest("inv.item.list", {
+          organization_id: orgId,
+        });
+        document.getElementById("itemList").innerHTML = items
+          .map(
+            (i) =>
+              `<li><strong>${i.item_number}</strong> — on hand ${i.qty_on_hand ?? "?"} ` +
+              `(avg cost ${i.avg_unit_cost ?? "?"})</li>`
+          )
+          .join("") || "<li>No items</li>";
+
+        const pos = await MfgPortal.runSemanticRequest("inv.purchase_order.list", {
+          organization_id: orgId,
+        });
+        document.getElementById("poList").innerHTML = pos
+          .map((p) => `<li>${p.po_number || "PO"} #${p.purchase_order_id} — ${p.status}</li>`)
+          .join("") || "<li>No POs</li>";
+
+        const suppliers = await MfgPortal.runSemanticRequest("inv.supplier_item.list", {
+          organization_id: orgId,
+        });
+        document.getElementById("supplierList").innerHTML = suppliers
+          .map(
+            (s) =>
+              `<li>${s.supplier_code}: ${s.supplier_part_number} → ${s.item_number}` +
+              `${s.preferred ? " ★" : ""}</li>`
+          )
+          .join("") || "<li>No supplier items</li>";
+      }
+
+      document.getElementById("issueForm").addEventListener("submit", async (ev) => {
+        ev.preventDefault();
+        const data = new FormData(ev.target);
+        try {
+          await MfgPortal.runAction("mfg.inv.issue_to_work_order", {
+            organization_id: MfgPortal.organizationId(),
+            work_order_id: Number(data.get("work_order_id")),
+            stock_lot_id: Number(data.get("stock_lot_id")),
+            quantity: Number(data.get("quantity")),
+          });
+          MfgPortal.setStatus(status, "Issued to work order");
+        } catch (err) {
+          MfgPortal.setStatus(status, err.message, true);
+        }
+      });
+
+      document.getElementById("adjustForm").addEventListener("submit", async (ev) => {
+        ev.preventDefault();
+        const data = new FormData(ev.target);
+        try {
+          await MfgPortal.runAction("inv.stock.adjust", {
+            organization_id: MfgPortal.organizationId(),
+            user_id: MfgPortal.userId(),
+            stock_lot_id: Number(data.get("stock_lot_id")),
+            qty_delta: Number(data.get("qty_delta")),
+            reason_code: String(data.get("reason_code")),
+          });
+          MfgPortal.setStatus(status, "Adjustment posted");
+          await loadInv();
+        } catch (err) {
+          MfgPortal.setStatus(status, err.message, true);
+        }
+      });
+
+      loadInv().catch((err) => MfgPortal.setStatus(status, err.message, true));
+    </script>
+  </body>
+</html>

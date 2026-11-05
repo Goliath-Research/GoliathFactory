@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Factory · CAPA</title>
+    <link rel="stylesheet" href="../static/mfg-shell.css" />
+  </head>
+  <body>
+    <h1>CAPA queue</h1>
+    <ul class="mfg-list" id="capaList"></ul>
+    <div class="mfg-card">
+      <h2>Close CAPA</h2>
+      <form id="closeForm" class="mfg-form-grid">
+        <label>CAPA ID <input name="capa_id" type="number" required /></label>
+        <label>Effectiveness notes <textarea name="effectiveness_notes" required rows="2"></textarea></label>
+        <label>Signature meaning <input name="signature_meaning" value="CAPA closed — effectiveness verified" /></label>
+        <button class="primary" type="submit">Close CAPA</button>
+      </form>
+    </div>
+    <p class="mfg-status" id="status"></p>
+    <script src="../static/mfg-api.js"></script>
+    <script>
+      const status = document.getElementById("status");
+      const capaList = document.getElementById("capaList");
+
+      async function refresh() {
+        const rows = await MfgPortal.runSemanticRequest("mfg.capa.list_open", {
+          site_id: MfgPortal.siteId(),
+          status: "open",
+        });
+        capaList.innerHTML = rows
+          .map(
+            (c) =>
+              `<li><strong>${c.capa_number}</strong> — ${c.title} ` +
+              `<span class="mfg-badge">${c.open_action_count} open actions</span></li>`
+          )
+          .join("");
+      }
+
+      document.getElementById("closeForm").addEventListener("submit", async (ev) => {
+        ev.preventDefault();
+        const data = new FormData(ev.target);
+        try {
+          await MfgPortal.runAction("mfg.capa.close", {
+            capa_id: Number(data.get("capa_id")),
+            effectiveness_notes: String(data.get("effectiveness_notes")),
+            signature_meaning: String(data.get("signature_meaning")),
+          });
+          MfgPortal.setStatus(status, "CAPA closed");
+          await refresh();
+        } catch (err) {
+          MfgPortal.setStatus(status, err.message, true);
+        }
+      });
+
+      refresh().catch((err) => MfgPortal.setStatus(status, err.message, true));
+    </script>
+  </body>
+</html>

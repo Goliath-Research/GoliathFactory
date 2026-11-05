@@ -3,7 +3,7 @@
   "id": "goliathfactory",
   "name": "GoliathFactory",
   "tagline": "Manufacturing operations on GoliathApp: travelers, QC, lot genealogy, NCR/CAPA, inventory, and maintenance.",
-  "description": "GoliathFactory specializes GoliathApp for 10–50 person manufacturers. Phase 2 (pilot v1) adds tablet portal views for travelers, inspections, NCR, genealogy, and printable labels; `fac_qual` and domain audit/e-sign fields; typed actions with in-process handlers; and `inv` integration stubs until GoliathApp PR #34 merges. Phase 1 delivers core production and trace schemas plus the `mfg` semantic namespace.",
+  "description": "GoliathFactory specializes GoliathApp for 10–50 person manufacturers. Phase 3 adds CAPA, gauge calibration, document control, AS9102 first article, CoC export, accounting adapter stubs, and inv integration (overrides on GoliathApp main 1a0fe26) via fac_mfg_inv. Phase 2 (pilot v1) delivers tablet portal views, fac_qual, and typed actions. Phase 1 delivers core production and trace schemas plus the mfg semantic namespace.",
   "category": "application",
   "features": [
     {

@@ -2,7 +2,7 @@
 
 GoliathApp specialization for manufacturing operations: work orders and signed travelers, QC inspections, lot traceability and genealogy, NCR/CAPA, inventory and purchasing, and maintenance. Initial targets are 10–50 person precision shops (AS9100, ISO 13485, ISO 9001) and food processors (FSMA 204) in Florida.
 
-Status: **Phase 2 pilot v1 in development** — tablet portal views, quality schemas (`fac_qual`), NCR/disposition actions, lot genealogy UI, domain audit log, and GoliathApp `inv` hooks (see [`docs/inv-dependency.md`](docs/inv-dependency.md)). Phase 1 core data remains on `main`. See [`docs/plan.md`](docs/plan.md).
+Status: **Phase 3 quality and purchasing in development** — CAPA, gauge calibration, document control, FAI (AS9102), CoC export, accounting adapter stubs, and Factory purchasing UI against published GoliathApp `inv` shapes while [PR #34](https://github.com/Goliath-Research/GoliathApp/pull/34) remains open. Phase 2 pilot v1 (travelers, inspections, NCR, genealogy) is on `main`. See [`docs/phase3-status.md`](docs/phase3-status.md) and [`docs/plan.md`](docs/plan.md).
 
 ## Layout
 
@@ -10,6 +10,8 @@ Status: **Phase 2 pilot v1 in development** — tablet portal views, quality sch
 | --- | --- |
 | [`portal/`](portal/) | Tablet-friendly HTML views, `frames.json`, and `MfgPortal` API helpers |
 | [`docs/plan.md`](docs/plan.md) | Full plan: domain model, inventory, workflows, DomainPrograms, schema, roles, views, roadmap, decisions |
+| [`docs/phase3-status.md`](docs/phase3-status.md) | Phase 3 checklist vs plan |
+| [`docs/accounting-adapters.md`](docs/accounting-adapters.md) | QBO / ERPNext adapter env vars |
 | [`src/goliath_factory/`](src/goliath_factory/) | Python package (semantic specs, actions, seed helpers) |
 | [`database/schema/`](database/schema/) | Ordered SQL apply scripts (views, RLS, semantic functions, NavTree) |
 | [`scripts/apply_domain_schema.sh`](scripts/apply_domain_schema.sh) | Idempotent domain DDL apply (after GoliathApp platform schema) |
@@ -35,7 +37,7 @@ goliath-factory-seed-nav
 
 ## Inventory (`inv`)
 
-Item master, stock, and purchasing are implemented once in **GoliathApp** (generic `inv` module). GoliathFactory depends on that module when deployed but does not define duplicate inventory schemas or NavTree nodes here. Factory › Inventory & purchasing in the plan refers to platform `inv` nodes enabled at release time.
+Item master, stock, and purchasing are implemented once in **GoliathApp** (generic `inv` module). GoliathFactory ships hooks and a purchasing portal frame that calls `inv.*` semantic requests when the module is enabled; see [`docs/inv-dependency.md`](docs/inv-dependency.md).
 
 ## Architecture
 

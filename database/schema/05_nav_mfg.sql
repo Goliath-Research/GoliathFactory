@@ -78,12 +78,24 @@ BEGIN
   PERFORM fac_eng.sp_register_mfg_nav_child(
     v_quality_id, 'NCR / CAPA', 20, 'mfg_ncr', 'mfg.ncr.list_open'
   );
+  PERFORM fac_eng.sp_register_mfg_nav_child(
+    v_quality_id, 'First article (FAI)', 30, 'mfg_fai', 'mfg.fai.by_work_order'
+  );
+  PERFORM fac_eng.sp_register_mfg_nav_child(
+    v_quality_id, 'Document control', 40, 'mfg_documents', 'mfg.document.list'
+  );
 
+  PERFORM fac_eng.sp_register_mfg_nav_child(
+    v_root_id, 'Gauges', 28, 'mfg_gauges', 'mfg.gauge.due_calibration'
+  );
   PERFORM fac_eng.sp_register_mfg_nav_child(
     v_root_id, 'Traceability', 30, 'mfg_traceability', 'mfg.lot.genealogy'
   );
   PERFORM fac_eng.sp_register_mfg_nav_child(
-    v_root_id, 'Receiving (pilot)', 35, 'mfg_receiving', 'mfg.inv.receive_stub'
+    v_root_id, 'Inventory & purchasing', 35, 'mfg_inv', 'inv.item.list'
+  );
+  PERFORM fac_eng.sp_register_mfg_nav_child(
+    v_root_id, 'Receiving', 36, 'mfg_receiving', 'inv.stock.receive'
   );
 END;
 $$;

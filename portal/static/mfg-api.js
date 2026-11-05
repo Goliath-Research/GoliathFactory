@@ -68,11 +68,27 @@
     return sessionSite ? Number(sessionSite) : 1;
   }
 
+  function organizationId() {
+    const fromQuery = queryParam("organization_id");
+    if (fromQuery) return Number(fromQuery);
+    const sessionOrg = window.GOLIATH_SESSION && window.GOLIATH_SESSION.organizationId;
+    return sessionOrg ? Number(sessionOrg) : 1;
+  }
+
+  function userId() {
+    const fromQuery = queryParam("user_id");
+    if (fromQuery) return Number(fromQuery);
+    const sessionUser = window.GOLIATH_SESSION && window.GOLIATH_SESSION.userId;
+    return sessionUser ? Number(sessionUser) : 1;
+  }
+
   window.MfgPortal = {
     runSemanticRequest,
     runAction,
     setStatus,
     queryParam,
     siteId,
+    organizationId,
+    userId,
   };
 })();

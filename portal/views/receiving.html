@@ -7,17 +7,18 @@
     <link rel="stylesheet" href="../static/mfg-shell.css" />
   </head>
   <body>
-    <h1>Receiving (pilot stub)</h1>
-    <p class="mfg-muted">
-      Full receiving and incoming inspection integrate with the GoliathApp <code>inv</code> module when
-      <a href="https://github.com/Goliath-Research/GoliathApp/pull/34">PR #34</a> merges. This form calls
-      <code>mfg.inv.receive_stub</code> to exercise the hook.
+    <h1>Receiving</h1>
+    <p>
+      Calls <code>inv.stock.receive</code> (Factory override) → <code>inv.sp_stock_receive</code> plus a
+      <code>fac_trace</code> material lot for genealogy.
     </p>
     <form id="recvForm" class="mfg-card mfg-form-grid">
-      <label>Item ref <input name="item_ref" required value="RAW-AL-6061" /></label>
-      <label>Quantity <input name="quantity" type="number" step="any" required value="100" /></label>
+      <label>PO line ID <input name="po_line_id" type="number" required value="1" /></label>
+      <label>Bin ID <input name="bin_id" type="number" required value="1" /></label>
+      <label>Quantity <input name="qty" type="number" step="any" required value="100" /></label>
       <label>Supplier lot <input name="lot_number" value="HEAT-88421" /></label>
-      <button class="primary" type="submit">Receive (stub)</button>
+      <label>Site ID (trace lot) <input name="site_id" type="number" value="1" /></label>
+      <button class="primary" type="submit">Receive stock</button>
     </form>
     <pre class="mfg-card" id="out" hidden></pre>
     <p class="mfg-status" id="status"></p>
@@ -28,15 +29,18 @@
         event.preventDefault();
         const data = new FormData(event.target);
         try {
-          const out = await MfgPortal.runAction("mfg.inv.receive_stub", {
-            site_id: MfgPortal.siteId(),
-            item_ref: String(data.get("item_ref")),
-            quantity: Number(data.get("quantity")),
+          const out = await MfgPortal.runAction("inv.stock.receive", {
+            organization_id: MfgPortal.organizationId(),
+            user_id: MfgPortal.userId(),
+            po_line_id: Number(data.get("po_line_id")),
+            bin_id: Number(data.get("bin_id")),
+            qty: Number(data.get("qty")),
             lot_number: String(data.get("lot_number") || "") || null,
+            site_id: Number(data.get("site_id")) || MfgPortal.siteId(),
           });
           document.getElementById("out").hidden = false;
           document.getElementById("out").textContent = JSON.stringify(out, null, 2);
-          MfgPortal.setStatus(status, "Stub receive recorded — wire to inv when merged");
+          MfgPortal.setStatus(status, "Receipt posted to inv + trace lot");
         } catch (err) {
           MfgPortal.setStatus(status, err.message, true);
         }

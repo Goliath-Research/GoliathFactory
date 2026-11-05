@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Factory · Documents</title>
+    <link rel="stylesheet" href="../static/mfg-shell.css" />
+  </head>
+  <body>
+    <h1>Controlled documents</h1>
+    <ul class="mfg-list" id="docList"></ul>
+    <div class="mfg-card">
+      <h2>Change workflow (stub)</h2>
+      <form id="reviewForm" class="mfg-form-grid">
+        <label>Revision ID <input name="revision_id" type="number" required /></label>
+        <label>Change summary <input name="change_summary" /></label>
+        <button type="submit">Submit for review</button>
+      </form>
+      <form id="approveForm" class="mfg-form-grid">
+        <label>Revision ID <input name="revision_id" type="number" required /></label>
+        <label>Signature meaning <input name="signature_meaning" value="Controlled document approved" /></label>
+        <button class="primary" type="submit">Approve &amp; make effective</button>
+      </form>
+    </div>
+    <p class="mfg-status" id="status"></p>
+    <script src="../static/mfg-api.js"></script>
+    <script>
+      const status = document.getElementById("status");
+      const docList = document.getElementById("docList");
+
+      async function refresh() {
+        const rows = await MfgPortal.runSemanticRequest("mfg.document.list", {
+          site_id: MfgPortal.siteId(),
+        });
+        docList.innerHTML = rows
+          .map(
+            (d) =>
+              `<li><strong>${d.doc_number}</strong> rev ${d.revision || "?"} — ${d.title} ` +
+              `<span class="mfg-badge">${d.status || "draft"}</span></li>`
+          )
+          .join("");
+      }
+
+      document.getElementById("reviewForm").addEventListener("submit", async (ev) => {
+        ev.preventDefault();
+        const data = new FormData(ev.target);
+        try {
+          await MfgPortal.runAction("mfg.document.submit_review", {
+            revision_id: Number(data.get("revision_id")),
+            change_summary: data.get("change_summary") || null,
+          });
+          MfgPortal.setStatus(status, "Submitted for review");
+          await refresh();
+        } catch (err) {
+          MfgPortal.setStatus(status, err.message, true);
+        }
+      });
+
+      document.getElementById("approveForm").addEventListener("submit", async (ev) => {
+        ev.preventDefault();
+        const data = new FormData(ev.target);
+        try {
+          await MfgPortal.runAction("mfg.document.approve", {
+            revision_id: Number(data.get("revision_id")),
+            signature_meaning: String(data.get("signature_meaning")),
+          });
+          MfgPortal.setStatus(status, "Document effective");
+          await refresh();
+        } catch (err) {
+          MfgPortal.setStatus(status, err.message, true);
+        }
+      });
+
+      refresh().catch((err) => MfgPortal.setStatus(status, err.message, true));
+    </script>
+  </body>
+</html>

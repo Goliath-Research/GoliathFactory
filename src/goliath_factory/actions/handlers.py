@@ -5,13 +5,25 @@ from __future__ import annotations
 import json
 from typing import Any
 
+from goliath_app.inv.models import IssueStockStubInput
+
 from goliath_factory.actions.models import (
+    CapaCloseInput,
+    CapaCloseOutput,
+    DocumentApproveInput,
+    DocumentApproveOutput,
+    DocumentSubmitReviewInput,
+    DocumentSubmitReviewOutput,
+    FaiApproveInput,
+    FaiApproveOutput,
+    FaiStartInput,
+    FaiStartOutput,
+    GaugeLockoutCheckInput,
+    GaugeLockoutCheckOutput,
     InspectionResultRecordInput,
     InspectionResultRecordOutput,
-    InvIssueToWorkOrderStubInput,
-    InvIssueToWorkOrderStubOutput,
-    InvReceiveStubInput,
-    InvReceiveStubOutput,
+    InvIssueToWorkOrderInput,
+    InvIssueToWorkOrderOutput,
     LotCocGenerateInput,
     LotCocGenerateOutput,
     NcrDispositionInput,
@@ -25,6 +37,7 @@ from goliath_factory.actions.models import (
     WorkOrderReleaseInput,
     WorkOrderReleaseOutput,
 )
+from goliath_factory.inv.models import MfgIssueStockOutput, MfgReceiveStockInput, MfgReceiveStockOutput
 from goliath_factory.db import connect, libpq_configured, user_id_from_context
 
 
@@ -214,6 +227,142 @@ def handle_ncr_disposition(
     ).model_dump(mode="json")
 
 
+def handle_capa_close(
+    payload: dict[str, Any],
+    *,
+    context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    model = CapaCloseInput.model_validate(payload)
+    user_id = _require_db_user(context)
+    with connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT fac_qual.sp_capa_close(%s, %s, %s, %s, %s)
+                """,
+                (
+                    user_id,
+                    model.capa_id,
+                    model.effectiveness_notes,
+                    model.signature_meaning,
+                    model.record_hash,
+                ),
+            )
+            status = str(_fetch_one(cur, "sp_capa_close")[0])
+        conn.commit()
+    return CapaCloseOutput(capa_id=model.capa_id, status=status).model_dump(mode="json")
+
+
+def handle_gauge_lockout_check(
+    payload: dict[str, Any],
+    *,
+    context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    model = GaugeLockoutCheckInput.model_validate(payload)
+    _require_db_user(context)
+    with connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT fac_gauge.sp_lockout_check(%s)",
+                (model.gauge_id,),
+            )
+            locked = bool(_fetch_one(cur, "sp_lockout_check")[0])
+    return GaugeLockoutCheckOutput(gauge_id=model.gauge_id, locked_out=locked).model_dump(
+        mode="json"
+    )
+
+
+def handle_fai_start(
+    payload: dict[str, Any],
+    *,
+    context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    model = FaiStartInput.model_validate(payload)
+    user_id = _require_db_user(context)
+    with connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT fac_qual.sp_fai_start(%s, %s, %s)",
+                (user_id, model.work_order_id, model.inspection_plan_id),
+            )
+            fai_id = int(_fetch_one(cur, "sp_fai_start")[0])
+        conn.commit()
+    return FaiStartOutput(first_article_id=fai_id, status="in_progress").model_dump(mode="json")
+
+
+def handle_fai_approve(
+    payload: dict[str, Any],
+    *,
+    context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    model = FaiApproveInput.model_validate(payload)
+    user_id = _require_db_user(context)
+    with connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT fac_qual.sp_fai_approve(%s, %s, %s, %s)",
+                (
+                    user_id,
+                    model.first_article_id,
+                    model.signature_meaning,
+                    model.record_hash,
+                ),
+            )
+            status = str(_fetch_one(cur, "sp_fai_approve")[0])
+        conn.commit()
+    return FaiApproveOutput(first_article_id=model.first_article_id, status=status).model_dump(
+        mode="json"
+    )
+
+
+def handle_document_submit_review(
+    payload: dict[str, Any],
+    *,
+    context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    model = DocumentSubmitReviewInput.model_validate(payload)
+    user_id = _require_db_user(context)
+    with connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "SELECT fac_doc.sp_document_submit_review(%s, %s, %s)",
+                (user_id, model.revision_id, model.change_summary),
+            )
+            status = str(_fetch_one(cur, "sp_document_submit_review")[0])
+        conn.commit()
+    return DocumentSubmitReviewOutput(revision_id=model.revision_id, status=status).model_dump(
+        mode="json"
+    )
+
+
+def handle_document_approve(
+    payload: dict[str, Any],
+    *,
+    context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    model = DocumentApproveInput.model_validate(payload)
+    user_id = _require_db_user(context)
+    with connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT fac_doc.sp_document_approve(%s, %s, %s, %s, %s)
+                """,
+                (
+                    user_id,
+                    model.revision_id,
+                    model.signature_meaning,
+                    model.record_hash,
+                    model.effective_on,
+                ),
+            )
+            status = str(_fetch_one(cur, "sp_document_approve")[0])
+        conn.commit()
+    return DocumentApproveOutput(revision_id=model.revision_id, status=status).model_dump(
+        mode="json"
+    )
+
+
 def handle_lot_coc_generate(
     payload: dict[str, Any],
     *,
@@ -238,53 +387,104 @@ def handle_lot_coc_generate(
     return LotCocGenerateOutput(lot_id=model.lot_id, document=document).model_dump(mode="json")
 
 
-def handle_inv_receive_stub(
+def handle_inv_stock_receive(
     payload: dict[str, Any],
     *,
     context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    model = InvReceiveStubInput.model_validate(payload)
-    user_id = _require_db_user(context)
+    model = MfgReceiveStockInput.model_validate(payload)
+    user_id = model.user_id or _require_db_user(context)
     with connect() as conn:
         with conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT fac_inv_hooks.sp_receive_with_inspection(%s, %s, %s, %s, %s)
+                SELECT receipt_id, stock_lot_id, avg_unit_cost, trace_lot_id
+                FROM fac_mfg_inv.sp_receive_with_inspection(
+                  %s, %s, %s, %s, %s, %s, %s, %s
+                )
                 """,
-                (user_id, model.site_id, model.item_ref, model.quantity, model.lot_number),
+                (
+                    model.organization_id,
+                    user_id,
+                    model.po_line_id,
+                    model.bin_id,
+                    model.qty,
+                    model.lot_number,
+                    model.unit_price_override,
+                    model.site_id,
+                ),
             )
-            detail = _fetch_one(cur, "sp_receive_with_inspection")[0]
+            row = _fetch_one(cur, "sp_receive_with_inspection")
         conn.commit()
-    if isinstance(detail, str):
-        detail = json.loads(detail)
-    return InvReceiveStubOutput(
-        status=str(detail.get("status", "stub")),
-        dependency=str(detail.get("dependency", "GoliathApp inv module")),
-        detail=detail,
+    return MfgReceiveStockOutput(
+        receipt_id=int(row[0]),
+        stock_lot_id=int(row[1]),
+        avg_unit_cost=float(row[2]),
+        trace_lot_id=int(row[3]) if row[3] is not None else None,
     ).model_dump(mode="json")
 
 
-def handle_inv_issue_to_work_order_stub(
+def handle_inv_stock_issue(
     payload: dict[str, Any],
     *,
     context: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    model = InvIssueToWorkOrderStubInput.model_validate(payload)
+    model = IssueStockStubInput.model_validate(payload)
+    user_id = model.user_id or _require_db_user(context)
+    with connect() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                SELECT stock_move_id, qty_on_hand, genealogy_link_id
+                FROM fac_mfg_inv.sp_issue_with_genealogy(
+                  %s, %s, %s, %s, %s, %s
+                )
+                """,
+                (
+                    model.organization_id,
+                    user_id,
+                    model.stock_lot_id,
+                    model.qty,
+                    model.ref_type,
+                    model.ref_id,
+                ),
+            )
+            row = _fetch_one(cur, "sp_issue_with_genealogy")
+        conn.commit()
+    return MfgIssueStockOutput(
+        stock_move_id=int(row[0]),
+        qty_on_hand=float(row[1]),
+        genealogy_link_id=int(row[2]) if row[2] is not None else None,
+    ).model_dump(mode="json")
+
+
+def handle_inv_issue_to_work_order(
+    payload: dict[str, Any],
+    *,
+    context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    model = InvIssueToWorkOrderInput.model_validate(payload)
     user_id = _require_db_user(context)
     with connect() as conn:
         with conn.cursor() as cur:
             cur.execute(
                 """
-                SELECT fac_inv_hooks.sp_issue_to_work_order(%s, %s, %s, %s)
+                SELECT stock_move_id, qty_on_hand, genealogy_link_id
+                FROM fac_mfg_inv.sp_issue_to_work_order(%s, %s, %s, %s, %s)
                 """,
-                (user_id, model.work_order_id, model.stock_lot_ref, model.quantity),
+                (
+                    model.organization_id,
+                    user_id,
+                    model.work_order_id,
+                    model.stock_lot_id,
+                    model.quantity,
+                ),
             )
-            detail = _fetch_one(cur, "sp_issue_to_work_order")[0]
+            row = _fetch_one(cur, "sp_issue_to_work_order")
         conn.commit()
-    if isinstance(detail, str):
-        detail = json.loads(detail)
-    return InvIssueToWorkOrderStubOutput(
-        status=str(detail.get("status", "stub")),
-        dependency=str(detail.get("dependency", "GoliathApp inv module")),
-        detail=detail,
+    return InvIssueToWorkOrderOutput(
+        work_order_id=model.work_order_id,
+        stock_move_id=int(row[0]),
+        qty_on_hand=float(row[1]),
+        genealogy_link_id=int(row[2]) if row[2] is not None else None,
     ).model_dump(mode="json")

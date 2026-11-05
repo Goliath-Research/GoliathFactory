@@ -7,6 +7,14 @@ from goliath_app.semantic.spec import SemanticAttributeSpec, SemanticEntitySpec,
 from goliath_factory.semantic.models import (
     AuditByEntityParams,
     AuditLogRow,
+    CapaListOpenParams,
+    CapaRow,
+    DocumentListParams,
+    DocumentRow,
+    FirstArticleByWorkOrderParams,
+    FirstArticleRow,
+    GaugeDueCalibrationParams,
+    GaugeRow,
     GenealogyRow,
     InspectionPlanByPartParams,
     InspectionPlanRow,
@@ -223,6 +231,70 @@ NCR_ENTITY = SemanticEntitySpec(
     ),
 )
 
+CAPA_ENTITY = SemanticEntitySpec(
+    namespace="mfg",
+    code="capa",
+    display_name="CAPA",
+    description="Corrective and preventive action with linked NCRs and action items.",
+    schema_version="1",
+    row_model=CapaRow,
+    storage_relation="fac_qual.v_capa",
+    attributes=(
+        SemanticAttributeSpec("capa_id", "capa_id", "integer", "key", ()),
+        SemanticAttributeSpec("site_id", "site_id", "integer", "filter", ("eq",)),
+        SemanticAttributeSpec("status", "status", "string", "attribute", ("eq", "in")),
+        SemanticAttributeSpec("capa_number", "capa_number", "string", "label", ("eq",)),
+    ),
+)
+
+GAUGE_ENTITY = SemanticEntitySpec(
+    namespace="mfg",
+    code="gauge",
+    display_name="Gauge",
+    description="Calibrated gauge with due date and lockout when overdue.",
+    schema_version="1",
+    row_model=GaugeRow,
+    storage_relation="fac_gauge.v_gauge",
+    attributes=(
+        SemanticAttributeSpec("gauge_id", "gauge_id", "integer", "key", ()),
+        SemanticAttributeSpec("site_id", "site_id", "integer", "filter", ("eq",)),
+        SemanticAttributeSpec("gauge_tag", "gauge_tag", "string", "label", ("eq",)),
+        SemanticAttributeSpec("locked_out", "locked_out", "boolean", "attribute", ("eq",)),
+    ),
+)
+
+DOCUMENT_ENTITY = SemanticEntitySpec(
+    namespace="mfg",
+    code="document",
+    display_name="Controlled document",
+    description="Controlled document with revision and approval status.",
+    schema_version="1",
+    row_model=DocumentRow,
+    storage_relation="fac_doc.v_document",
+    attributes=(
+        SemanticAttributeSpec("document_id", "document_id", "integer", "key", ()),
+        SemanticAttributeSpec("site_id", "site_id", "integer", "filter", ("eq",)),
+        SemanticAttributeSpec("doc_number", "doc_number", "string", "label", ("eq",)),
+        SemanticAttributeSpec("status", "status", "string", "attribute", ("eq",)),
+    ),
+)
+
+FIRST_ARTICLE_ENTITY = SemanticEntitySpec(
+    namespace="mfg",
+    code="first_article",
+    display_name="First article",
+    description="AS9102-oriented first article inspection for a work order.",
+    schema_version="1",
+    row_model=FirstArticleRow,
+    storage_relation="fac_qual.v_first_article",
+    attributes=(
+        SemanticAttributeSpec("first_article_id", "first_article_id", "integer", "key", ()),
+        SemanticAttributeSpec("work_order_id", "work_order_id", "integer", "filter", ("eq",)),
+        SemanticAttributeSpec("site_id", "site_id", "integer", "filter", ("eq",)),
+        SemanticAttributeSpec("status", "status", "string", "attribute", ("eq",)),
+    ),
+)
+
 SEMANTIC_CATALOG: list[SemanticEntitySpec] = [
     PART_ENTITY,
     ROUTING_ENTITY,
@@ -232,6 +304,10 @@ SEMANTIC_CATALOG: list[SemanticEntitySpec] = [
     INSPECTION_PLAN_ENTITY,
     INSPECTION_RESULT_ENTITY,
     NCR_ENTITY,
+    CAPA_ENTITY,
+    GAUGE_ENTITY,
+    DOCUMENT_ENTITY,
+    FIRST_ARTICLE_ENTITY,
 ]
 
 SEMANTIC_REQUESTS: list[SemanticRequestSpec] = [
@@ -317,6 +393,54 @@ SEMANTIC_REQUESTS: list[SemanticRequestSpec] = [
         params_model=AuditByEntityParams,
         result_row_model=AuditLogRow,
         required_permission="mfg.audit.read",
+        max_rows=500,
+    ),
+    SemanticRequestSpec(
+        request_code="mfg.capa.list_open",
+        version="1",
+        namespace="mfg",
+        entity_code="capa",
+        target_kind="function",
+        target_name="fac_qual.fn_semantic_capa_list_open",
+        params_model=CapaListOpenParams,
+        result_row_model=CapaRow,
+        required_permission="mfg.quality.read",
+        max_rows=500,
+    ),
+    SemanticRequestSpec(
+        request_code="mfg.gauge.due_calibration",
+        version="1",
+        namespace="mfg",
+        entity_code="gauge",
+        target_kind="function",
+        target_name="fac_gauge.fn_semantic_gauge_due_calibration",
+        params_model=GaugeDueCalibrationParams,
+        result_row_model=GaugeRow,
+        required_permission="mfg.gauge.read",
+        max_rows=500,
+    ),
+    SemanticRequestSpec(
+        request_code="mfg.document.list",
+        version="1",
+        namespace="mfg",
+        entity_code="document",
+        target_kind="function",
+        target_name="fac_doc.fn_semantic_document_list",
+        params_model=DocumentListParams,
+        result_row_model=DocumentRow,
+        required_permission="mfg.document.read",
+        max_rows=500,
+    ),
+    SemanticRequestSpec(
+        request_code="mfg.fai.by_work_order",
+        version="1",
+        namespace="mfg",
+        entity_code="first_article",
+        target_kind="function",
+        target_name="fac_qual.fn_semantic_fai_by_work_order",
+        params_model=FirstArticleByWorkOrderParams,
+        result_row_model=FirstArticleRow,
+        required_permission="mfg.quality.read",
         max_rows=500,
     ),
 ]

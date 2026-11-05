@@ -1,5 +1,479 @@
 {
   "entities": {
+    "mfg.capa": {
+      "attributes": [
+        {
+          "code": "capa_id",
+          "column_name": "capa_id",
+          "filterable_ops": [],
+          "json_type": "integer",
+          "role": "key"
+        },
+        {
+          "code": "site_id",
+          "column_name": "site_id",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "integer",
+          "role": "filter"
+        },
+        {
+          "code": "status",
+          "column_name": "status",
+          "filterable_ops": [
+            "eq",
+            "in"
+          ],
+          "json_type": "string",
+          "role": "attribute"
+        },
+        {
+          "code": "capa_number",
+          "column_name": "capa_number",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "string",
+          "role": "label"
+        }
+      ],
+      "catalog_type_name": null,
+      "code": "capa",
+      "content_hash": "06102354201f02edf384f22d72649a577d6270a28e6c5d8f28de82d36bf5a2f2",
+      "description": "Corrective and preventive action with linked NCRs and action items.",
+      "display_name": "CAPA",
+      "meta_class_id": null,
+      "meta_class_name": null,
+      "namespace": "mfg",
+      "row_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "capa_id": {
+            "title": "Capa Id",
+            "type": "integer"
+          },
+          "capa_number": {
+            "title": "Capa Number",
+            "type": "string"
+          },
+          "open_action_count": {
+            "title": "Open Action Count",
+            "type": "integer"
+          },
+          "opened_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Opened At"
+          },
+          "root_cause": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Root Cause"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "source_ncr_count": {
+            "title": "Source Ncr Count",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "capa_id",
+          "site_id",
+          "capa_number",
+          "title",
+          "status",
+          "source_ncr_count",
+          "open_action_count"
+        ],
+        "title": "CapaRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_capa_row",
+      "schema_id": "goliath.semantic/mfg/capa/1",
+      "schema_version": "1",
+      "storage_relation": "fac_qual.v_capa"
+    },
+    "mfg.document": {
+      "attributes": [
+        {
+          "code": "document_id",
+          "column_name": "document_id",
+          "filterable_ops": [],
+          "json_type": "integer",
+          "role": "key"
+        },
+        {
+          "code": "site_id",
+          "column_name": "site_id",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "integer",
+          "role": "filter"
+        },
+        {
+          "code": "doc_number",
+          "column_name": "doc_number",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "string",
+          "role": "label"
+        },
+        {
+          "code": "status",
+          "column_name": "status",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "string",
+          "role": "attribute"
+        }
+      ],
+      "catalog_type_name": null,
+      "code": "document",
+      "content_hash": "00cd8b4d56baf62af9ca7cb3afdacb3fabda94ad97411125abd5764eeb3c0568",
+      "description": "Controlled document with revision and approval status.",
+      "display_name": "Controlled document",
+      "meta_class_id": null,
+      "meta_class_name": null,
+      "namespace": "mfg",
+      "row_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc_number": {
+            "title": "Doc Number",
+            "type": "string"
+          },
+          "doc_type": {
+            "title": "Doc Type",
+            "type": "string"
+          },
+          "document_id": {
+            "title": "Document Id",
+            "type": "integer"
+          },
+          "effective_on": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Effective On"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Revision"
+          },
+          "revision_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Revision Id"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "document_id",
+          "site_id",
+          "doc_number",
+          "title",
+          "doc_type"
+        ],
+        "title": "DocumentRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_document_row",
+      "schema_id": "goliath.semantic/mfg/document/1",
+      "schema_version": "1",
+      "storage_relation": "fac_doc.v_document"
+    },
+    "mfg.first_article": {
+      "attributes": [
+        {
+          "code": "first_article_id",
+          "column_name": "first_article_id",
+          "filterable_ops": [],
+          "json_type": "integer",
+          "role": "key"
+        },
+        {
+          "code": "work_order_id",
+          "column_name": "work_order_id",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "integer",
+          "role": "filter"
+        },
+        {
+          "code": "site_id",
+          "column_name": "site_id",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "integer",
+          "role": "filter"
+        },
+        {
+          "code": "status",
+          "column_name": "status",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "string",
+          "role": "attribute"
+        }
+      ],
+      "catalog_type_name": null,
+      "code": "first_article",
+      "content_hash": "848684e75b888f188b89ab68af4a6f79d311f54b96b6366e120aea6442f7d965",
+      "description": "AS9102-oriented first article inspection for a work order.",
+      "display_name": "First article",
+      "meta_class_id": null,
+      "meta_class_name": null,
+      "namespace": "mfg",
+      "row_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "first_article_id": {
+            "title": "First Article Id",
+            "type": "integer"
+          },
+          "part_number": {
+            "title": "Part Number",
+            "type": "string"
+          },
+          "part_revision": {
+            "title": "Part Revision",
+            "type": "string"
+          },
+          "qa_approved_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Qa Approved At"
+          },
+          "result_count": {
+            "title": "Result Count",
+            "type": "integer"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "work_order_id": {
+            "title": "Work Order Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "first_article_id",
+          "site_id",
+          "work_order_id",
+          "part_number",
+          "part_revision",
+          "status",
+          "result_count"
+        ],
+        "title": "FirstArticleRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_first_article_row",
+      "schema_id": "goliath.semantic/mfg/first_article/1",
+      "schema_version": "1",
+      "storage_relation": "fac_qual.v_first_article"
+    },
+    "mfg.gauge": {
+      "attributes": [
+        {
+          "code": "gauge_id",
+          "column_name": "gauge_id",
+          "filterable_ops": [],
+          "json_type": "integer",
+          "role": "key"
+        },
+        {
+          "code": "site_id",
+          "column_name": "site_id",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "integer",
+          "role": "filter"
+        },
+        {
+          "code": "gauge_tag",
+          "column_name": "gauge_tag",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "string",
+          "role": "label"
+        },
+        {
+          "code": "locked_out",
+          "column_name": "locked_out",
+          "filterable_ops": [
+            "eq"
+          ],
+          "json_type": "boolean",
+          "role": "attribute"
+        }
+      ],
+      "catalog_type_name": null,
+      "code": "gauge",
+      "content_hash": "1cd0a88ec45298992be29c724e635740498e985ce59f12ac6822d1d6032900ea",
+      "description": "Calibrated gauge with due date and lockout when overdue.",
+      "display_name": "Gauge",
+      "meta_class_id": null,
+      "meta_class_name": null,
+      "namespace": "mfg",
+      "row_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "gauge_id": {
+            "title": "Gauge Id",
+            "type": "integer"
+          },
+          "gauge_tag": {
+            "title": "Gauge Tag",
+            "type": "string"
+          },
+          "gauge_type": {
+            "title": "Gauge Type",
+            "type": "string"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Location"
+          },
+          "locked_out": {
+            "title": "Locked Out",
+            "type": "boolean"
+          },
+          "next_cal_due_on": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Next Cal Due On"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "gauge_id",
+          "site_id",
+          "gauge_tag",
+          "gauge_type",
+          "locked_out",
+          "status"
+        ],
+        "title": "GaugeRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_gauge_row",
+      "schema_id": "goliath.semantic/mfg/gauge/1",
+      "schema_version": "1",
+      "storage_relation": "fac_gauge.v_gauge"
+    },
     "mfg.inspection_plan": {
       "attributes": [
         {
@@ -1499,6 +1973,424 @@
       "schema_id": "goliath.semantic/mfg/mfg.audit.by_entity/1",
       "target_kind": "function",
       "target_name": "fac_audit.fn_semantic_audit_by_entity",
+      "version": "1"
+    },
+    "mfg.capa.list_open": {
+      "base_namespace": null,
+      "content_hash": "524fab970dbdf06b8b800976304902d219362b2c17826d55b3c1ec4c457ed0da",
+      "entity_code": "capa",
+      "filter_template": null,
+      "max_rows": 500,
+      "namespace": "mfg",
+      "params_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          }
+        },
+        "required": [
+          "site_id"
+        ],
+        "title": "CapaListOpenParams",
+        "type": "object"
+      },
+      "request_code": "mfg.capa.list_open",
+      "required_permission": "mfg.quality.read",
+      "result_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "capa_id": {
+            "title": "Capa Id",
+            "type": "integer"
+          },
+          "capa_number": {
+            "title": "Capa Number",
+            "type": "string"
+          },
+          "open_action_count": {
+            "title": "Open Action Count",
+            "type": "integer"
+          },
+          "opened_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Opened At"
+          },
+          "root_cause": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Root Cause"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "source_ncr_count": {
+            "title": "Source Ncr Count",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "capa_id",
+          "site_id",
+          "capa_number",
+          "title",
+          "status",
+          "source_ncr_count",
+          "open_action_count"
+        ],
+        "title": "CapaRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_capa_row",
+      "schema_id": "goliath.semantic/mfg/mfg.capa.list_open/1",
+      "target_kind": "function",
+      "target_name": "fac_qual.fn_semantic_capa_list_open",
+      "version": "1"
+    },
+    "mfg.document.list": {
+      "base_namespace": null,
+      "content_hash": "0a7215fdd41cc2215d2285faeb1b32350dd2376240036c2b501d03a2993e01cf",
+      "entity_code": "document",
+      "filter_template": null,
+      "max_rows": 500,
+      "namespace": "mfg",
+      "params_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          }
+        },
+        "required": [
+          "site_id"
+        ],
+        "title": "DocumentListParams",
+        "type": "object"
+      },
+      "request_code": "mfg.document.list",
+      "required_permission": "mfg.document.read",
+      "result_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "doc_number": {
+            "title": "Doc Number",
+            "type": "string"
+          },
+          "doc_type": {
+            "title": "Doc Type",
+            "type": "string"
+          },
+          "document_id": {
+            "title": "Document Id",
+            "type": "integer"
+          },
+          "effective_on": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Effective On"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Revision"
+          },
+          "revision_id": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Revision Id"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "document_id",
+          "site_id",
+          "doc_number",
+          "title",
+          "doc_type"
+        ],
+        "title": "DocumentRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_document_row",
+      "schema_id": "goliath.semantic/mfg/mfg.document.list/1",
+      "target_kind": "function",
+      "target_name": "fac_doc.fn_semantic_document_list",
+      "version": "1"
+    },
+    "mfg.fai.by_work_order": {
+      "base_namespace": null,
+      "content_hash": "bc6b5f5aab7b7a13b5346a19364fdb9d932b7cc061796057bcca066322f1674e",
+      "entity_code": "first_article",
+      "filter_template": null,
+      "max_rows": 500,
+      "namespace": "mfg",
+      "params_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "work_order_id": {
+            "title": "Work Order Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "work_order_id"
+        ],
+        "title": "FirstArticleByWorkOrderParams",
+        "type": "object"
+      },
+      "request_code": "mfg.fai.by_work_order",
+      "required_permission": "mfg.quality.read",
+      "result_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "first_article_id": {
+            "title": "First Article Id",
+            "type": "integer"
+          },
+          "part_number": {
+            "title": "Part Number",
+            "type": "string"
+          },
+          "part_revision": {
+            "title": "Part Revision",
+            "type": "string"
+          },
+          "qa_approved_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Qa Approved At"
+          },
+          "result_count": {
+            "title": "Result Count",
+            "type": "integer"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "work_order_id": {
+            "title": "Work Order Id",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "first_article_id",
+          "site_id",
+          "work_order_id",
+          "part_number",
+          "part_revision",
+          "status",
+          "result_count"
+        ],
+        "title": "FirstArticleRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_first_article_row",
+      "schema_id": "goliath.semantic/mfg/mfg.fai.by_work_order/1",
+      "target_kind": "function",
+      "target_name": "fac_qual.fn_semantic_fai_by_work_order",
+      "version": "1"
+    },
+    "mfg.gauge.due_calibration": {
+      "base_namespace": null,
+      "content_hash": "6dd3efc44d3af3e4790e0f2d7aeb090e74d415ef04db6ba5ae656773397dc3c4",
+      "entity_code": "gauge",
+      "filter_template": null,
+      "max_rows": 500,
+      "namespace": "mfg",
+      "params_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "within_days": {
+            "default": 30,
+            "title": "Within Days",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "site_id"
+        ],
+        "title": "GaugeDueCalibrationParams",
+        "type": "object"
+      },
+      "request_code": "mfg.gauge.due_calibration",
+      "required_permission": "mfg.gauge.read",
+      "result_schema": {
+        "additionalProperties": false,
+        "properties": {
+          "gauge_id": {
+            "title": "Gauge Id",
+            "type": "integer"
+          },
+          "gauge_tag": {
+            "title": "Gauge Tag",
+            "type": "string"
+          },
+          "gauge_type": {
+            "title": "Gauge Type",
+            "type": "string"
+          },
+          "location": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Location"
+          },
+          "locked_out": {
+            "title": "Locked Out",
+            "type": "boolean"
+          },
+          "next_cal_due_on": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Next Cal Due On"
+          },
+          "site_id": {
+            "title": "Site Id",
+            "type": "integer"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "gauge_id",
+          "site_id",
+          "gauge_tag",
+          "gauge_type",
+          "locked_out",
+          "status"
+        ],
+        "title": "GaugeRow",
+        "type": "object"
+      },
+      "row_type": "portal.mfg_gauge_row",
+      "schema_id": "goliath.semantic/mfg/mfg.gauge.due_calibration/1",
+      "target_kind": "function",
+      "target_name": "fac_gauge.fn_semantic_gauge_due_calibration",
       "version": "1"
     },
     "mfg.inspection_plan.by_part": {

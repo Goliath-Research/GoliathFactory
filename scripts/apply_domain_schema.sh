@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Apply GoliathFactory domain PostgreSQL DDL (Phase 1–2 schemas).
+# Apply GoliathFactory domain PostgreSQL DDL (Phase 1–3 schemas).
 #
 # Run after GoliathApp platform schema is present on the database.
 #
@@ -43,6 +43,14 @@ SCRIPTS=(
   08_fac_audit.sql
   09_fac_mfg_api.sql
   10_fac_semantic_phase2.sql
+  11_fac_qual_capa.sql
+  12_fac_gauge.sql
+  13_fac_doc.sql
+  14_fac_fai.sql
+  15_fac_trace_coc.sql
+  16_fac_mfg_api_phase3.sql
+  17_fac_semantic_phase3.sql
+  18_fac_mfg_inv.sql
 )
 
 for name in "${SCRIPTS[@]}"; do

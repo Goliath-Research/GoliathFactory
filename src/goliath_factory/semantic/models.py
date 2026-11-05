@@ -214,3 +214,84 @@ class AuditByEntityParams(BaseModel):
     entity_type: str
     entity_id: int
     site_id: Optional[int] = None
+
+
+class CapaRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    capa_id: int
+    site_id: int
+    capa_number: str
+    title: str
+    root_cause: Optional[str] = None
+    status: str
+    opened_at: Optional[datetime] = None
+    source_ncr_count: int
+    open_action_count: int
+
+
+class CapaListOpenParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    site_id: int
+    status: Optional[str] = None
+
+
+class GaugeRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    gauge_id: int
+    site_id: int
+    gauge_tag: str
+    gauge_type: str
+    location: Optional[str] = None
+    next_cal_due_on: Optional[date] = None
+    locked_out: bool
+    status: str
+
+
+class GaugeDueCalibrationParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    site_id: int
+    within_days: int = 30
+
+
+class DocumentRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    document_id: int
+    site_id: int
+    doc_number: str
+    title: str
+    doc_type: str
+    revision_id: Optional[int] = None
+    revision: Optional[str] = None
+    status: Optional[str] = None
+    effective_on: Optional[date] = None
+
+
+class DocumentListParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    site_id: int
+    status: Optional[str] = None
+
+
+class FirstArticleRow(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    first_article_id: int
+    site_id: int
+    work_order_id: int
+    part_number: str
+    part_revision: str
+    status: str
+    result_count: int
+    qa_approved_at: Optional[datetime] = None
+
+
+class FirstArticleByWorkOrderParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    work_order_id: int

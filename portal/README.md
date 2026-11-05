@@ -14,8 +14,13 @@ Serve the `portal/` directory over HTTP and open `views/shell.html`, or load a f
 | `mfg.traveler_step.by_work_order` | Shop-floor traveler (start → sign-off) |
 | `mfg.inspection_result.by_lot` | Inspection entry |
 | `mfg.ncr.list_open` | NCR queue and MRB disposition |
-| `mfg.lot.genealogy` | Lot trace tree + CoC stub action |
-| `mfg.inv.receive_stub` | Receiving hook (until GoliathApp `inv` merges) |
+| `mfg.capa.list_open` | CAPA queue and close action |
+| `mfg.gauge.due_calibration` | Gauge calibration calendar |
+| `mfg.document.list` | Controlled documents + change stubs |
+| `mfg.fai.by_work_order` | AS9102 first article |
+| `mfg.lot.genealogy` | Lot trace tree + CoC export |
+| `inv.item.list` | Inventory & purchasing (GoliathApp `inv`) |
+| `inv.stock.receive` | Receiving + trace lot (`fac_mfg_inv`) |
 | `mfg.label.traveler_print` | Printable traveler label (browser print) |
 
 API helpers live in `static/mfg-api.js` (`MfgPortal.runSemanticRequest`, `MfgPortal.runAction`).

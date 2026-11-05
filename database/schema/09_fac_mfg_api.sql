@@ -4,8 +4,7 @@ SET client_min_messages = warning;
 CREATE SCHEMA IF NOT EXISTS fac_inv_hooks;
 
 COMMENT ON SCHEMA fac_inv_hooks IS
-  'Stubs until GoliathApp inv module merges (GoliathApp PR #34). '
-  'Replace with calls into inv.* procs when inv is enabled on the deployment.';
+  'Deprecated Phase 2 stubs; use fac_mfg_inv (18_fac_mfg_inv.sql) with GoliathApp inv on main.';
 
 CREATE OR REPLACE FUNCTION fac_audit.sp_append(
   p_site_id integer,

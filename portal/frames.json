@@ -7,8 +7,13 @@
     "mfg.traveler_step.by_work_order": { "view": "views/shop-floor.html", "title": "Shop floor" },
     "mfg.inspection_result.by_lot": { "view": "views/inspections.html", "title": "Inspections" },
     "mfg.ncr.list_open": { "view": "views/ncr.html", "title": "NCR / CAPA" },
+    "mfg.capa.list_open": { "view": "views/capa.html", "title": "CAPA" },
+    "mfg.gauge.due_calibration": { "view": "views/gauges.html", "title": "Gauges" },
+    "mfg.document.list": { "view": "views/documents.html", "title": "Document control" },
+    "mfg.fai.by_work_order": { "view": "views/fai.html", "title": "First article" },
     "mfg.lot.genealogy": { "view": "views/genealogy.html", "title": "Lot genealogy" },
-    "mfg.inv.receive_stub": { "view": "views/receiving.html", "title": "Receiving" },
+    "inv.item.list": { "view": "views/purchasing.html", "title": "Inventory & purchasing" },
+    "inv.stock.receive": { "view": "views/receiving.html", "title": "Receiving" },
     "mfg.label.traveler_print": { "view": "views/label-print.html", "title": "Traveler label" }
   }
 }
