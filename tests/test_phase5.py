@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from goliath_factory.actions.catalog import ACTIONS
 from goliath_factory.config import load_factory_config
 from goliath_factory.fsma import FSMA_CSV_HEADER, rows_to_traceability_csv
@@ -76,13 +78,14 @@ def test_fsma_csv_helper_sorted_header() -> None:
     assert "shipping" in lines[1]
 
 
-def test_offline_permission_allows_without_granted_list() -> None:
+def test_offline_permission_denies_inspection_without_granted_list() -> None:
     from goliath_factory.offline.permissions import assert_offline_domain_permission
 
-    assert_offline_domain_permission(
-        "mfg.inspection_result.record",
-        context={"user_id": 1},
-    )
+    with pytest.raises(RuntimeError, match="mfg.quality.inspect"):
+        assert_offline_domain_permission(
+            "mfg.inspection_result.record",
+            context={"user_id": 1},
+        )
 
 
 def test_machine_ingest_demo_mode() -> None:
